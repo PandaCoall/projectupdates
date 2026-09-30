@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import type { Answers } from "@/lib/answers";
 import { getSql } from "@/lib/db";
 import { matchTeam, type TeamRole } from "@/lib/team";
-import type { Goal } from "@/lib/tracker";
+import type { Goal, Status } from "@/lib/tracker";
 
 export type SharedComment = {
   id: string;
@@ -23,6 +23,11 @@ type Doc = {
   answers: SharedAnswer[];
 };
 
+const GOALS_PATH = "team-goals.json";
+const COMMENTS_PATH = "team-comments.json";
+const ANSWERS_PATH = "team-answers.json";
+const LEGACY_PATH = "team-board.json";
+
 const emptyDoc = (): Doc => ({ goals: [], comments: [], answers: [] });
 
 function memberOrThrow(email: string) {
@@ -36,42 +41,95 @@ function blobToken() {
   return value && value.trim() ? value.trim() : "";
 }
 
-async function readBlob(): Promise<Doc | null> {
+async function listBlob(pathname: string): Promise<{ url: string; etag?: string } | null> {
   const token = blobToken();
   if (!token) return null;
-  const listed = await fetch("https://vercel.com/api/blob?prefix=team-board.json", {
+  const listed = await fetch(`https://vercel.com/api/blob?prefix=${encodeURIComponent(pathname)}`, {
     headers: { authorization: `Bearer ${token}`, "x-api-version": "12" },
+    cache: "no-store",
   });
   if (!listed.ok) throw new Error("Could not read the team board.");
-  const data = (await listed.json()) as { blobs?: { url: string; pathname: string }[] };
-  const hit = data.blobs?.find((blob) => blob.pathname === "team-board.json");
-  if (!hit) return emptyDoc();
+  const data = (await listed.json()) as { blobs?: { url: string; pathname: string; etag?: string }[] };
+  const hit = data.blobs?.find((blob) => blob.pathname === pathname);
+  return hit ? { url: hit.url, etag: hit.etag } : null;
+}
+
+async function readJson<T>(pathname: string, fallback: T): Promise<{ value: T; etag?: string; found: boolean }> {
+  const hit = await listBlob(pathname);
+  if (!hit) return { value: fallback, found: false };
   const file = await fetch(hit.url, {
-    headers: { authorization: `Bearer ${token}` },
+    headers: { authorization: `Bearer ${blobToken()}` },
     cache: "no-store",
   });
   if (!file.ok) throw new Error("Could not read the team board.");
-  return (await file.json()) as Doc;
+  return { value: (await file.json()) as T, etag: hit.etag, found: true };
 }
 
-async function writeBlob(doc: Doc) {
+async function writeJson(pathname: string, value: unknown, etag?: string): Promise<"ok" | "conflict"> {
   const token = blobToken();
-  if (!token) return;
-  const res = await fetch("https://vercel.com/api/blob/?pathname=team-board.json", {
+  if (!token) return "ok";
+  const headers: Record<string, string> = {
+    authorization: `Bearer ${token}`,
+    "x-api-version": "12",
+    "x-vercel-blob-access": "private",
+    "x-content-type": "application/json",
+    "x-add-random-suffix": "0",
+    "x-allow-overwrite": "1",
+  };
+  if (etag) headers["x-if-match"] = etag;
+  const res = await fetch(`https://vercel.com/api/blob/?pathname=${encodeURIComponent(pathname)}`, {
     method: "PUT",
-    body: JSON.stringify(doc),
-    headers: {
-      authorization: `Bearer ${token}`,
-      "x-api-version": "12",
-      "x-vercel-blob-access": "private",
-      "x-content-type": "application/json",
-      "x-add-random-suffix": "0",
-      "x-allow-overwrite": "1",
-    },
+    body: JSON.stringify(value),
+    headers,
   });
+  if (res.status === 412 || res.status === 409) return "conflict";
   if (!res.ok) throw new Error("Could not save the team board.");
+  return "ok";
 }
 
+async function readLegacy(): Promise<Doc | null> {
+  const legacy = await readJson<Doc>(LEGACY_PATH, emptyDoc());
+  if (!legacy.found) return null;
+  return legacy.value;
+}
+
+async function readDoc(): Promise<Doc> {
+  if (!blobToken()) return readSql();
+  const [goalsFile, commentsFile, answersFile, legacy] = await Promise.all([
+    readJson<{ goals: Goal[] }>(GOALS_PATH, { goals: [] }),
+    readJson<{ comments: SharedComment[] }>(COMMENTS_PATH, { comments: [] }),
+    readJson<{ answers: SharedAnswer[] }>(ANSWERS_PATH, { answers: [] }),
+    readLegacy(),
+  ]);
+  const goals = goalsFile.found ? goalsFile.value.goals : (legacy?.goals ?? []);
+  const comments = commentsFile.found ? commentsFile.value.comments : (legacy?.comments ?? []);
+  const answers = answersFile.found ? answersFile.value.answers : (legacy?.answers ?? []);
+  if (legacy && (!goalsFile.found || !commentsFile.found || !answersFile.found)) {
+    if (!goalsFile.found) await writeJson(GOALS_PATH, { goals });
+    if (!commentsFile.found) await writeJson(COMMENTS_PATH, { comments });
+    if (!answersFile.found) await writeJson(ANSWERS_PATH, { answers });
+  }
+  return { goals, comments, answers };
+}
+
+function patchMilestone(goals: Goal[], goalId: string, milestoneId: string, status?: Status, due?: string) {
+  return goals.map((goal) =>
+    goal.id !== goalId
+      ? goal
+      : {
+          ...goal,
+          milestones: goal.milestones.map((milestone) =>
+            milestone.id !== milestoneId
+              ? milestone
+              : {
+                  ...milestone,
+                  status: status ?? milestone.status,
+                  due: due ?? milestone.due,
+                },
+          ),
+        },
+  );
+}
 async function readSql(): Promise<Doc> {
   const sql = await getSql();
   const boards = await sql<{ goals: Goal[] }>`select goals from hyrax_board where id = 1`;
@@ -82,12 +140,6 @@ async function readSql(): Promise<Doc> {
     order by created_at
   `;
   return { goals: boards[0]?.goals ?? [], comments, answers };
-}
-
-async function readDoc(): Promise<Doc> {
-  const blob = await readBlob();
-  if (blob) return blob;
-  return readSql();
 }
 
 export const loadShared = createServerFn({ method: "POST" })
@@ -110,8 +162,7 @@ export const saveGoals = createServerFn({ method: "POST" })
     const member = memberOrThrow(data.email);
     if (member.role !== "owner") throw new Error("Only the owner can change the board.");
     if (blobToken()) {
-      const doc = (await readBlob()) ?? emptyDoc();
-      await writeBlob({ ...doc, goals: data.goals });
+      await writeJson(GOALS_PATH, { goals: data.goals });
       return { ok: true as const };
     }
     const sql = await getSql();
@@ -119,15 +170,37 @@ export const saveGoals = createServerFn({ method: "POST" })
     return { ok: true as const };
   });
 
+export const updateMilestone = createServerFn({ method: "POST" })
+  .validator((input: { email: string; goalId: string; milestoneId: string; status?: Status; due?: string }) => input)
+  .handler(async ({ data }) => {
+    memberOrThrow(data.email);
+    if (blobToken()) {
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        const file = await readJson<{ goals: Goal[] }>(GOALS_PATH, { goals: [] });
+        const base = file.found ? file.value.goals : (await readDoc()).goals;
+        const goals = patchMilestone(base, data.goalId, data.milestoneId, data.status, data.due);
+        const result = await writeJson(GOALS_PATH, { goals }, attempt < 4 ? file.etag : undefined);
+        if (result === "ok") return { ok: true as const, goals };
+      }
+      throw new Error("Could not save the status. Try again.");
+    }
+    const sql = await getSql();
+    const boards = await sql<{ goals: Goal[] }>`select goals from hyrax_board where id = 1`;
+    const goals = patchMilestone(boards[0]?.goals ?? [], data.goalId, data.milestoneId, data.status, data.due);
+    await sql`update hyrax_board set goals = ${JSON.stringify(goals)}::jsonb where id = 1`;
+    return { ok: true as const, goals };
+  });
+
 export const saveMyAnswers = createServerFn({ method: "POST" })
   .validator((input: { email: string; answers: Answers }) => input)
   .handler(async ({ data }) => {
     const member = memberOrThrow(data.email);
     if (blobToken()) {
-      const doc = (await readBlob()) ?? emptyDoc();
-      const answers = doc.answers.filter((row) => row.author !== member.name);
+      const current = await readJson<{ answers: SharedAnswer[] }>(ANSWERS_PATH, { answers: [] });
+      const legacy = current.found ? current.value.answers : ((await readLegacy())?.answers ?? []);
+      const answers = legacy.filter((row) => row.author !== member.name);
       answers.push({ author: member.name, body: data.answers });
-      await writeBlob({ ...doc, answers });
+      await writeJson(ANSWERS_PATH, { answers });
       return { ok: true as const, author: member.name };
     }
     const sql = await getSql();
@@ -154,9 +227,13 @@ export const addComment = createServerFn({ method: "POST" })
       created_at: new Date().toISOString(),
     };
     if (blobToken()) {
-      const doc = (await readBlob()) ?? emptyDoc();
-      await writeBlob({ ...doc, comments: [...doc.comments, row] });
-      return row;
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        const current = await readJson<{ comments: SharedComment[] }>(COMMENTS_PATH, { comments: [] });
+        const existing = current.found ? current.value.comments : ((await readLegacy())?.comments ?? []);
+        const result = await writeJson(COMMENTS_PATH, { comments: [...existing, row] }, current.etag);
+        if (result === "ok") return row;
+      }
+      throw new Error("Could not add the comment.");
     }
     const sql = await getSql();
     const rows = await sql<SharedComment>`

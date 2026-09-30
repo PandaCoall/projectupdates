@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { AnswersView } from "@/components/answers-view";
 import { PeopleView } from "@/components/people-view";
-import { addComment, loadShared, saveGoals, saveMyAnswers, type SharedAnswer, type SharedComment } from "@/lib/shared";
+import { addComment, loadShared, saveGoals, saveMyAnswers, updateMilestone, type SharedAnswer, type SharedComment } from "@/lib/shared";
 import { matchTeam, type TeamMember } from "@/lib/team";
 import { withAnswers } from "@/lib/answers";
 import {
@@ -53,7 +53,6 @@ export function TrackerApp() {
   const [toast, setToast] = useState("");
   const [who, setWho] = useState<TeamMember | null>(null);
   const [gateReady, setGateReady] = useState(false);
-  const [sharedReady, setSharedReady] = useState(false);
   const [comments, setComments] = useState<SharedComment[]>([]);
   const [teamAnswers, setTeamAnswers] = useState<SharedAnswer[]>([]);
 
@@ -91,20 +90,20 @@ export function TrackerApp() {
             answers: mine ? mine.body : prev.answers,
           };
         });
-        setSharedReady(true);
+        if (snap.goals.length === 0 && who.role === "owner") {
+          const local = loadState();
+          if (local.goals.length > 0) {
+            saveGoals({ data: { email: who.email, goals: local.goals } }).catch(() =>
+              setToast("Could not save the board."),
+            );
+          }
+        }
       })
       .catch(() => setToast("Could not open the shared tracker."));
     return () => {
       cancel = true;
     };
   }, [who]);
-
-  useEffect(() => {
-    if (!sharedReady || who?.role !== "owner" || !state) return;
-    saveGoals({ data: { email: who.email, goals: state.goals } }).catch(() =>
-      setToast("Could not save the board."),
-    );
-  }, [state?.goals, sharedReady, who]);
 
   const counts = useMemo(() => {
     const ms = state?.goals.flatMap((g) => g.milestones) ?? [];
@@ -125,6 +124,7 @@ export function TrackerApp() {
   const memberOnly = who?.role === "member";
 
   if (!who) return <Navigate to="/enter" />;
+  const member = who;
 
   const q = query.trim().toLowerCase();
   const visible = state.goals.filter((g) => {
@@ -137,6 +137,19 @@ export function TrackerApp() {
 
   function patch(fn: (s: TrackerState) => TrackerState) {
     setState((s) => (s ? fn(s) : s));
+  }
+
+  function commit(fn: (s: TrackerState) => TrackerState) {
+    setState((current) => {
+      if (!current) return current;
+      const next = fn(current);
+      if (member.role === "owner") {
+        saveGoals({ data: { email: member.email, goals: next.goals } }).catch(() =>
+          setToast("Could not save the board."),
+        );
+      }
+      return next;
+    });
   }
 
   function exportJson() {
@@ -155,6 +168,11 @@ export function TrackerApp() {
         const data = withAnswers(JSON.parse(text) as TrackerState);
         if (!Array.isArray(data.goals)) throw new Error("Missing goals");
         setState(data);
+        if (member.role === "owner") {
+          saveGoals({ data: { email: member.email, goals: data.goals } }).catch(() =>
+            setToast("Could not save the board."),
+          );
+        }
         setToast("Imported");
       } catch {
         setToast("Import failed");
@@ -176,7 +194,6 @@ export function TrackerApp() {
                 className="underline"
                 onClick={() => {
                   sessionStorage.removeItem(WHO_KEY);
-                  setSharedReady(false);
                   setWho(null);
                 }}
               >
@@ -251,8 +268,12 @@ export function TrackerApp() {
             <IconButton
               label="Reset"
               onClick={() => {
-                if (confirm("Replace this board with the original Week 1 seed?")) {
-                  setState(seedData());
+                if (confirm("Replace the shared board with the original Week 1 seed?")) {
+                  const next = seedData();
+                  setState(next);
+                  saveGoals({ data: { email: who.email, goals: next.goals } }).catch(() =>
+                    setToast("Could not save the board."),
+                  );
                   setToast("Reset");
                 }
               }}
@@ -409,7 +430,7 @@ export function TrackerApp() {
                     onEdit={() => setDraft({ kind: "goal", isNew: false, goal: structuredClone(g) })}
                     onDelete={() => {
                       if (confirm("Delete this goal and its milestones?")) {
-                        patch((s) => ({ ...s, goals: s.goals.filter((x) => x.id !== g.id) }));
+                        commit((s) => ({ ...s, goals: s.goals.filter((x) => x.id !== g.id) }));
                       }
                     }}
                     onAddMs={() =>
@@ -423,7 +444,7 @@ export function TrackerApp() {
                     onEditMs={(m) =>
                       setDraft({ kind: "ms", gid: g.id, isNew: false, ms: structuredClone(m) })
                     }
-                    onStatus={(mid, next) =>
+                    onStatus={(mid, next) => {
                       patch((s) => ({
                         ...s,
                         goals: s.goals.map((goal) =>
@@ -436,9 +457,12 @@ export function TrackerApp() {
                                 ),
                               },
                         ),
-                      }))
-                    }
-                    onDue={(mid, due) =>
+                      }));
+                      updateMilestone({
+                        data: { email: who.email, goalId: g.id, milestoneId: mid, status: next },
+                      }).catch(() => setToast("Could not save the status."));
+                    }}
+                    onDue={(mid, due) => {
                       patch((s) => ({
                         ...s,
                         goals: s.goals.map((goal) =>
@@ -446,15 +470,16 @@ export function TrackerApp() {
                             ? goal
                             : {
                                 ...goal,
-                                milestones: goal.milestones.map((m) =>
-                                  m.id === mid ? { ...m, due } : m,
-                                ),
+                                milestones: goal.milestones.map((m) => (m.id === mid ? { ...m, due } : m)),
                               },
                         ),
-                      }))
-                    }
+                      }));
+                      updateMilestone({
+                        data: { email: who.email, goalId: g.id, milestoneId: mid, due },
+                      }).catch(() => setToast("Could not save the due date."));
+                    }}
                     onDeleteMs={(mid) =>
-                      patch((s) => ({
+                      commit((s) => ({
                         ...s,
                         goals: s.goals.map((goal) =>
                           goal.id !== g.id
@@ -485,14 +510,14 @@ export function TrackerApp() {
           onClose={() => setDraft(null)}
           onSave={(next) => {
             if (next.kind === "goal") {
-              patch((s) => ({
+              commit((s) => ({
                 ...s,
                 goals: next.isNew
                   ? [...s.goals, next.goal]
                   : s.goals.map((g) => (g.id === next.goal.id ? next.goal : g)),
               }));
             } else {
-              patch((s) => ({
+              commit((s) => ({
                 ...s,
                 goals: s.goals.map((g) => {
                   if (g.id !== next.gid) return g;
@@ -627,7 +652,6 @@ function GoalCard({
             </div>
             <select
               aria-label="Status"
-              disabled={locked}
               className="min-h-11 rounded-lg border border-border bg-bg px-2 text-sm"
               value={m.status}
               onChange={(e) => onStatus(m.id, e.target.value as Status)}
@@ -643,7 +667,6 @@ function GoalCard({
               <input
                 type="date"
                 aria-label="Due date"
-                disabled={locked}
                 className="w-full bg-transparent outline-none"
                 value={m.due}
                 onChange={(e) => onDue(m.id, e.target.value)}

@@ -3,7 +3,7 @@ import { S as require_jsx_runtime, Y as require_react, y as Navigate } from "../
 import { n as TSS_SERVER_FUNCTION, r as getServerFnById, t as createServerFn } from "./ssr.mjs";
 import { n as matchTeam, t as TEAM } from "./team-C3E8MDHu.mjs";
 import { a as RotateCcw, c as Download, d as CircleCheck, f as Calendar, i as Search, l as Circle, o as Plus, r as Trash2, s as OctagonAlert, t as Upload, u as CircleDashed } from "../_libs/lucide-react.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/tracker-app-EREIaH2S.js
+//#region node_modules/.nitro/vite/services/ssr/assets/tracker-app-IjjfRMBp.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var FLOW_KINDS = [
@@ -745,6 +745,7 @@ var createSsrRpc = (functionId) => {
 };
 var loadShared = createServerFn({ method: "POST" }).validator((input) => input).handler(createSsrRpc("c9457b4136f459a1fee90d8c7edafb9ecec1d1cfa590570e1111302762702dc4"));
 var saveGoals = createServerFn({ method: "POST" }).validator((input) => input).handler(createSsrRpc("b0c7cb792e7d0700cfeee0557483816d4d19d0eafc88da92c0417ab802ed3d9e"));
+var updateMilestone = createServerFn({ method: "POST" }).validator((input) => input).handler(createSsrRpc("a3c39b0cc66bd4484c0e8e3bdddc022a8511eaddc2d8d20ea54df7bca3f89592"));
 var saveMyAnswers = createServerFn({ method: "POST" }).validator((input) => input).handler(createSsrRpc("ec8a4decd42eafd626832a1d56d3d0dc0d3fae02619880ad9be72a686e09f11f"));
 var addComment = createServerFn({ method: "POST" }).validator((input) => input).handler(createSsrRpc("a3c280c3aea37e586efb8514a9ddc8e440e9a61f15370078a87cced767967cdc"));
 var STORAGE_KEY = "hyrax-october-tracker-v3";
@@ -924,7 +925,6 @@ function TrackerApp() {
 	const [toast, setToast] = (0, import_react.useState)("");
 	const [who, setWho] = (0, import_react.useState)(null);
 	const [gateReady, setGateReady] = (0, import_react.useState)(false);
-	const [sharedReady, setSharedReady] = (0, import_react.useState)(false);
 	const [comments, setComments] = (0, import_react.useState)([]);
 	const [teamAnswers, setTeamAnswers] = (0, import_react.useState)([]);
 	(0, import_react.useEffect)(() => {
@@ -957,23 +957,18 @@ function TrackerApp() {
 					answers: mine ? mine.body : prev.answers
 				};
 			});
-			setSharedReady(true);
+			if (snap.goals.length === 0 && who.role === "owner") {
+				const local = loadState();
+				if (local.goals.length > 0) saveGoals({ data: {
+					email: who.email,
+					goals: local.goals
+				} }).catch(() => setToast("Could not save the board."));
+			}
 		}).catch(() => setToast("Could not open the shared tracker."));
 		return () => {
 			cancel = true;
 		};
 	}, [who]);
-	(0, import_react.useEffect)(() => {
-		if (!sharedReady || who?.role !== "owner" || !state) return;
-		saveGoals({ data: {
-			email: who.email,
-			goals: state.goals
-		} }).catch(() => setToast("Could not save the board."));
-	}, [
-		state?.goals,
-		sharedReady,
-		who
-	]);
 	const counts = (0, import_react.useMemo)(() => {
 		const ms = state?.goals.flatMap((g) => g.milestones) ?? [];
 		return {
@@ -989,6 +984,7 @@ function TrackerApp() {
 	});
 	const memberOnly = who?.role === "member";
 	if (!who) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Navigate, { to: "/enter" });
+	const member = who;
 	const q = query.trim().toLowerCase();
 	const visible = state.goals.filter((g) => {
 		if (week !== "all" && g.week !== week) return false;
@@ -999,6 +995,17 @@ function TrackerApp() {
 	});
 	function patch(fn) {
 		setState((s) => s ? fn(s) : s);
+	}
+	function commit(fn) {
+		setState((current) => {
+			if (!current) return current;
+			const next = fn(current);
+			if (member.role === "owner") saveGoals({ data: {
+				email: member.email,
+				goals: next.goals
+			} }).catch(() => setToast("Could not save the board."));
+			return next;
+		});
 	}
 	function exportJson() {
 		const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
@@ -1015,6 +1022,10 @@ function TrackerApp() {
 				const data = withAnswers(JSON.parse(text));
 				if (!Array.isArray(data.goals)) throw new Error("Missing goals");
 				setState(data);
+				if (member.role === "owner") saveGoals({ data: {
+					email: member.email,
+					goals: data.goals
+				} }).catch(() => setToast("Could not save the board."));
 				setToast("Imported");
 			} catch {
 				setToast("Import failed");
@@ -1053,7 +1064,6 @@ function TrackerApp() {
 											className: "underline",
 											onClick: () => {
 												sessionStorage.removeItem(WHO_KEY);
-												setSharedReady(false);
 												setWho(null);
 											},
 											children: "Use another email"
@@ -1144,8 +1154,13 @@ function TrackerApp() {
 								!memberOnly && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(IconButton, {
 									label: "Reset",
 									onClick: () => {
-										if (confirm("Replace this board with the original Week 1 seed?")) {
-											setState(seedData());
+										if (confirm("Replace the shared board with the original Week 1 seed?")) {
+											const next = seedData();
+											setState(next);
+											saveGoals({ data: {
+												email: who.email,
+												goals: next.goals
+											} }).catch(() => setToast("Could not save the board."));
 											setToast("Reset");
 										}
 									},
@@ -1314,7 +1329,7 @@ function TrackerApp() {
 								goal: structuredClone(g)
 							}),
 							onDelete: () => {
-								if (confirm("Delete this goal and its milestones?")) patch((s) => ({
+								if (confirm("Delete this goal and its milestones?")) commit((s) => ({
 									...s,
 									goals: s.goals.filter((x) => x.id !== g.id)
 								}));
@@ -1337,27 +1352,43 @@ function TrackerApp() {
 								isNew: false,
 								ms: structuredClone(m)
 							}),
-							onStatus: (mid, next) => patch((s) => ({
-								...s,
-								goals: s.goals.map((goal) => goal.id !== g.id ? goal : {
-									...goal,
-									milestones: goal.milestones.map((m) => m.id === mid ? {
-										...m,
-										status: next
-									} : m)
-								})
-							})),
-							onDue: (mid, due) => patch((s) => ({
-								...s,
-								goals: s.goals.map((goal) => goal.id !== g.id ? goal : {
-									...goal,
-									milestones: goal.milestones.map((m) => m.id === mid ? {
-										...m,
-										due
-									} : m)
-								})
-							})),
-							onDeleteMs: (mid) => patch((s) => ({
+							onStatus: (mid, next) => {
+								patch((s) => ({
+									...s,
+									goals: s.goals.map((goal) => goal.id !== g.id ? goal : {
+										...goal,
+										milestones: goal.milestones.map((m) => m.id === mid ? {
+											...m,
+											status: next
+										} : m)
+									})
+								}));
+								updateMilestone({ data: {
+									email: who.email,
+									goalId: g.id,
+									milestoneId: mid,
+									status: next
+								} }).catch(() => setToast("Could not save the status."));
+							},
+							onDue: (mid, due) => {
+								patch((s) => ({
+									...s,
+									goals: s.goals.map((goal) => goal.id !== g.id ? goal : {
+										...goal,
+										milestones: goal.milestones.map((m) => m.id === mid ? {
+											...m,
+											due
+										} : m)
+									})
+								}));
+								updateMilestone({ data: {
+									email: who.email,
+									goalId: g.id,
+									milestoneId: mid,
+									due
+								} }).catch(() => setToast("Could not save the due date."));
+							},
+							onDeleteMs: (mid) => commit((s) => ({
 								...s,
 								goals: s.goals.map((goal) => goal.id !== g.id ? goal : {
 									...goal,
@@ -1381,11 +1412,11 @@ function TrackerApp() {
 				draft,
 				onClose: () => setDraft(null),
 				onSave: (next) => {
-					if (next.kind === "goal") patch((s) => ({
+					if (next.kind === "goal") commit((s) => ({
 						...s,
 						goals: next.isNew ? [...s.goals, next.goal] : s.goals.map((g) => g.id === next.goal.id ? next.goal : g)
 					}));
-					else patch((s) => ({
+					else commit((s) => ({
 						...s,
 						goals: s.goals.map((g) => {
 							if (g.id !== next.gid) return g;
@@ -1503,7 +1534,6 @@ function GoalCard({ goal, onEdit, onDelete, onAddMs, onEditMs, onStatus, onDue, 
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("select", {
 						"aria-label": "Status",
-						disabled: locked,
 						className: "min-h-11 rounded-lg border border-border bg-bg px-2 text-sm",
 						value: m.status,
 						onChange: (e) => onStatus(m.id, e.target.value),
@@ -1520,7 +1550,6 @@ function GoalCard({ goal, onEdit, onDelete, onAddMs, onEditMs, onStatus, onDue, 
 						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 							type: "date",
 							"aria-label": "Due date",
-							disabled: locked,
 							className: "w-full bg-transparent outline-none",
 							value: m.due,
 							onChange: (e) => onDue(m.id, e.target.value)

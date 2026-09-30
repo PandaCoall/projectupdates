@@ -1,6 +1,6 @@
 import { n as TSS_SERVER_FUNCTION, t as createServerFn } from "./ssr.mjs";
 import { n as matchTeam } from "./team-C3E8MDHu.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/shared-Be-HsJz0.js
+//#region node_modules/.nitro/vite/services/ssr/assets/shared-BX3ta1vJ.js
 var createServerRpc = (serverFnMeta, splitImportFn) => {
 	const url = "/_serverFn/" + serverFnMeta.id;
 	return Object.assign(splitImportFn, {
@@ -180,6 +180,10 @@ if (typeof window === "undefined" && dbSource === "pglite") globalBoot.__pgBoots
 	console.error("[db] PGLite bootstrap failed:", err);
 	throw err;
 });
+var GOALS_PATH = "team-goals.json";
+var COMMENTS_PATH = "team-comments.json";
+var ANSWERS_PATH = "team-answers.json";
+var LEGACY_PATH = "team-board.json";
 var emptyDoc = () => ({
 	goals: [],
 	comments: [],
@@ -194,38 +198,97 @@ function blobToken() {
 	const value = process.env["BLOB_READ_WRITE_TOKEN"];
 	return value && value.trim() ? value.trim() : "";
 }
-async function readBlob() {
+async function listBlob(pathname) {
 	const token = blobToken();
 	if (!token) return null;
-	const listed = await fetch("https://vercel.com/api/blob?prefix=team-board.json", { headers: {
-		authorization: `Bearer ${token}`,
-		"x-api-version": "12"
-	} });
+	const listed = await fetch(`https://vercel.com/api/blob?prefix=${encodeURIComponent(pathname)}`, {
+		headers: {
+			authorization: `Bearer ${token}`,
+			"x-api-version": "12"
+		},
+		cache: "no-store"
+	});
 	if (!listed.ok) throw new Error("Could not read the team board.");
-	const hit = (await listed.json()).blobs?.find((blob) => blob.pathname === "team-board.json");
-	if (!hit) return emptyDoc();
+	const hit = (await listed.json()).blobs?.find((blob) => blob.pathname === pathname);
+	return hit ? {
+		url: hit.url,
+		etag: hit.etag
+	} : null;
+}
+async function readJson(pathname, fallback) {
+	const hit = await listBlob(pathname);
+	if (!hit) return {
+		value: fallback,
+		found: false
+	};
 	const file = await fetch(hit.url, {
-		headers: { authorization: `Bearer ${token}` },
+		headers: { authorization: `Bearer ${blobToken()}` },
 		cache: "no-store"
 	});
 	if (!file.ok) throw new Error("Could not read the team board.");
-	return await file.json();
+	return {
+		value: await file.json(),
+		etag: hit.etag,
+		found: true
+	};
 }
-async function writeBlob(doc) {
+async function writeJson(pathname, value, etag) {
 	const token = blobToken();
-	if (!token) return;
-	if (!(await fetch("https://vercel.com/api/blob/?pathname=team-board.json", {
+	if (!token) return "ok";
+	const headers = {
+		authorization: `Bearer ${token}`,
+		"x-api-version": "12",
+		"x-vercel-blob-access": "private",
+		"x-content-type": "application/json",
+		"x-add-random-suffix": "0",
+		"x-allow-overwrite": "1"
+	};
+	if (etag) headers["x-if-match"] = etag;
+	const res = await fetch(`https://vercel.com/api/blob/?pathname=${encodeURIComponent(pathname)}`, {
 		method: "PUT",
-		body: JSON.stringify(doc),
-		headers: {
-			authorization: `Bearer ${token}`,
-			"x-api-version": "12",
-			"x-vercel-blob-access": "private",
-			"x-content-type": "application/json",
-			"x-add-random-suffix": "0",
-			"x-allow-overwrite": "1"
-		}
-	})).ok) throw new Error("Could not save the team board.");
+		body: JSON.stringify(value),
+		headers
+	});
+	if (res.status === 412 || res.status === 409) return "conflict";
+	if (!res.ok) throw new Error("Could not save the team board.");
+	return "ok";
+}
+async function readLegacy() {
+	const legacy = await readJson(LEGACY_PATH, emptyDoc());
+	if (!legacy.found) return null;
+	return legacy.value;
+}
+async function readDoc() {
+	if (!blobToken()) return readSql();
+	const [goalsFile, commentsFile, answersFile, legacy] = await Promise.all([
+		readJson(GOALS_PATH, { goals: [] }),
+		readJson(COMMENTS_PATH, { comments: [] }),
+		readJson(ANSWERS_PATH, { answers: [] }),
+		readLegacy()
+	]);
+	const goals = goalsFile.found ? goalsFile.value.goals : legacy?.goals ?? [];
+	const comments = commentsFile.found ? commentsFile.value.comments : legacy?.comments ?? [];
+	const answers = answersFile.found ? answersFile.value.answers : legacy?.answers ?? [];
+	if (legacy && (!goalsFile.found || !commentsFile.found || !answersFile.found)) {
+		if (!goalsFile.found) await writeJson(GOALS_PATH, { goals });
+		if (!commentsFile.found) await writeJson(COMMENTS_PATH, { comments });
+		if (!answersFile.found) await writeJson(ANSWERS_PATH, { answers });
+	}
+	return {
+		goals,
+		comments,
+		answers
+	};
+}
+function patchMilestone(goals, goalId, milestoneId, status, due) {
+	return goals.map((goal) => goal.id !== goalId ? goal : {
+		...goal,
+		milestones: goal.milestones.map((milestone) => milestone.id !== milestoneId ? milestone : {
+			...milestone,
+			status: status ?? milestone.status,
+			due: due ?? milestone.due
+		})
+	});
 }
 async function readSql() {
 	const sql = await getSql();
@@ -241,11 +304,6 @@ async function readSql() {
 		comments,
 		answers
 	};
-}
-async function readDoc() {
-	const blob = await readBlob();
-	if (blob) return blob;
-	return readSql();
 }
 var loadShared_createServerFn_handler = createServerRpc({
 	id: "c9457b4136f459a1fee90d8c7edafb9ecec1d1cfa590570e1111302762702dc4",
@@ -271,14 +329,37 @@ var saveGoals_createServerFn_handler = createServerRpc({
 var saveGoals = createServerFn({ method: "POST" }).validator((input) => input).handler(saveGoals_createServerFn_handler, async ({ data }) => {
 	if (memberOrThrow(data.email).role !== "owner") throw new Error("Only the owner can change the board.");
 	if (blobToken()) {
-		await writeBlob({
-			...await readBlob() ?? emptyDoc(),
-			goals: data.goals
-		});
+		await writeJson(GOALS_PATH, { goals: data.goals });
 		return { ok: true };
 	}
 	await (await getSql())`update hyrax_board set goals = ${JSON.stringify(data.goals)}::jsonb where id = 1`;
 	return { ok: true };
+});
+var updateMilestone_createServerFn_handler = createServerRpc({
+	id: "a3c39b0cc66bd4484c0e8e3bdddc022a8511eaddc2d8d20ea54df7bca3f89592",
+	name: "updateMilestone",
+	filename: "src/lib/shared.ts"
+}, (opts) => updateMilestone.__executeServer(opts));
+var updateMilestone = createServerFn({ method: "POST" }).validator((input) => input).handler(updateMilestone_createServerFn_handler, async ({ data }) => {
+	memberOrThrow(data.email);
+	if (blobToken()) {
+		for (let attempt = 0; attempt < 5; attempt += 1) {
+			const file = await readJson(GOALS_PATH, { goals: [] });
+			const goals = patchMilestone(file.found ? file.value.goals : (await readDoc()).goals, data.goalId, data.milestoneId, data.status, data.due);
+			if (await writeJson(GOALS_PATH, { goals }, attempt < 4 ? file.etag : void 0) === "ok") return {
+				ok: true,
+				goals
+			};
+		}
+		throw new Error("Could not save the status. Try again.");
+	}
+	const sql = await getSql();
+	const goals = patchMilestone((await sql`select goals from hyrax_board where id = 1`)[0]?.goals ?? [], data.goalId, data.milestoneId, data.status, data.due);
+	await sql`update hyrax_board set goals = ${JSON.stringify(goals)}::jsonb where id = 1`;
+	return {
+		ok: true,
+		goals
+	};
 });
 var saveMyAnswers_createServerFn_handler = createServerRpc({
 	id: "ec8a4decd42eafd626832a1d56d3d0dc0d3fae02619880ad9be72a686e09f11f",
@@ -288,16 +369,13 @@ var saveMyAnswers_createServerFn_handler = createServerRpc({
 var saveMyAnswers = createServerFn({ method: "POST" }).validator((input) => input).handler(saveMyAnswers_createServerFn_handler, async ({ data }) => {
 	const member = memberOrThrow(data.email);
 	if (blobToken()) {
-		const doc = await readBlob() ?? emptyDoc();
-		const answers = doc.answers.filter((row) => row.author !== member.name);
+		const current = await readJson(ANSWERS_PATH, { answers: [] });
+		const answers = (current.found ? current.value.answers : (await readLegacy())?.answers ?? []).filter((row) => row.author !== member.name);
 		answers.push({
 			author: member.name,
 			body: data.answers
 		});
-		await writeBlob({
-			...doc,
-			answers
-		});
+		await writeJson(ANSWERS_PATH, { answers });
 		return {
 			ok: true,
 			author: member.name
@@ -331,12 +409,11 @@ var addComment = createServerFn({ method: "POST" }).validator((input) => input).
 		created_at: (/* @__PURE__ */ new Date()).toISOString()
 	};
 	if (blobToken()) {
-		const doc = await readBlob() ?? emptyDoc();
-		await writeBlob({
-			...doc,
-			comments: [...doc.comments, row]
-		});
-		return row;
+		for (let attempt = 0; attempt < 5; attempt += 1) {
+			const current = await readJson(COMMENTS_PATH, { comments: [] });
+			if (await writeJson(COMMENTS_PATH, { comments: [...current.found ? current.value.comments : (await readLegacy())?.comments ?? [], row] }, current.etag) === "ok") return row;
+		}
+		throw new Error("Could not add the comment.");
 	}
 	return (await (await getSql())`
       insert into hyrax_comments (id, goal_id, author, body)
@@ -345,4 +422,4 @@ var addComment = createServerFn({ method: "POST" }).validator((input) => input).
     `)[0];
 });
 //#endregion
-export { addComment_createServerFn_handler, loadShared_createServerFn_handler, saveGoals_createServerFn_handler, saveMyAnswers_createServerFn_handler };
+export { addComment_createServerFn_handler, loadShared_createServerFn_handler, saveGoals_createServerFn_handler, saveMyAnswers_createServerFn_handler, updateMilestone_createServerFn_handler };

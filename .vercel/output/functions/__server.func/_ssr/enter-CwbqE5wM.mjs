@@ -1,6 +1,6 @@
 import { S as require_jsx_runtime, b as useNavigate } from "../_libs/@tanstack/react-router+[...].mjs";
-import { t as EmailGate } from "./tracker-app-EREIaH2S.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/enter-CDx7vpyx.js
+import { t as EmailGate } from "./tracker-app-IjjfRMBp.mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/enter-CwbqE5wM.js
 var import_jsx_runtime = require_jsx_runtime();
 function EnterPage() {
 	const navigate = useNavigate();
