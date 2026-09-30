@@ -1,9 +1,9 @@
 import { o as __toESM } from "../_runtime.mjs";
 import { S as require_jsx_runtime, Y as require_react, y as Navigate } from "../_libs/@tanstack/react-router+[...].mjs";
 import { n as TSS_SERVER_FUNCTION, r as getServerFnById, t as createServerFn } from "./ssr.mjs";
-import { n as matchTeam, t as TEAM } from "./team-BwqprQbA.mjs";
+import { n as matchTeam, t as TEAM } from "./team-C3E8MDHu.mjs";
 import { a as RotateCcw, c as Download, d as CircleCheck, f as Calendar, i as Search, l as Circle, o as Plus, r as Trash2, s as OctagonAlert, t as Upload, u as CircleDashed } from "../_libs/lucide-react.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/tracker-app-i8FPJeLE.js
+//#region node_modules/.nitro/vite/services/ssr/assets/tracker-app-EREIaH2S.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var FLOW_KINDS = [
@@ -926,7 +926,7 @@ function TrackerApp() {
 	const [gateReady, setGateReady] = (0, import_react.useState)(false);
 	const [sharedReady, setSharedReady] = (0, import_react.useState)(false);
 	const [comments, setComments] = (0, import_react.useState)([]);
-	const [answerAuthors, setAnswerAuthors] = (0, import_react.useState)([]);
+	const [teamAnswers, setTeamAnswers] = (0, import_react.useState)([]);
 	(0, import_react.useEffect)(() => {
 		setState(loadState());
 		const saved = sessionStorage.getItem(WHO_KEY);
@@ -947,14 +947,14 @@ function TrackerApp() {
 		loadShared({ data: { email: who.email } }).then((snap) => {
 			if (cancel) return;
 			setComments(snap.comments);
-			setAnswerAuthors(snap.answers.map((row) => row.author));
+			setTeamAnswers(snap.answers);
 			setState((prev) => {
 				if (!prev) return prev;
 				const mine = snap.answers.find((row) => row.author === who.name);
 				return {
 					...prev,
 					goals: snap.goals.length > 0 ? snap.goals : prev.goals,
-					answers: who.role === "member" && mine ? mine.body : prev.answers
+					answers: mine ? mine.body : prev.answers
 				};
 			});
 			setSharedReady(true);
@@ -1196,7 +1196,7 @@ function TrackerApp() {
 					]
 				})]
 			}),
-			view === "answers" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(AnswersView, {
+			view === "answers" ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(AnswersView, {
 				answers: state.answers,
 				onChange: (answers) => {
 					setState({
@@ -1207,13 +1207,79 @@ function TrackerApp() {
 						email: who.email,
 						answers
 					} }).then(() => {
-						setAnswerAuthors((prev) => prev.includes(who.name) ? prev : [...prev, who.name]);
+						setTeamAnswers((prev) => [...prev.filter((row) => row.author !== who.name), {
+							author: who.name,
+							body: answers
+						}]);
 						setToast(`Saved under ${who.name}`);
 					}).catch(() => setToast("Could not save answers."));
 				}
-			}) : view === "people" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PeopleView, {}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("main", {
+			}), teamAnswers.filter((row) => row.author !== who.name).length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
+				className: "mx-auto max-w-5xl space-y-3 px-4 pb-8",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
+					className: "text-sm font-semibold",
+					children: "Everyone else's answers"
+				}), teamAnswers.filter((row) => row.author !== who.name).map((row) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", {
+					className: "rounded-xl border border-border bg-surface p-4 text-sm",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+						className: "font-medium",
+						children: row.author
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+						className: "mt-2 whitespace-pre-wrap text-muted",
+						children: row.body.sow.building || "No scope written yet."
+					})]
+				}, row.author))]
+			})] }) : view === "people" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PeopleView, {}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("main", {
 				className: "mx-auto max-w-5xl px-4 py-6",
-				children: WEEKS.filter((w) => week === "all" || week === w.id).map((w) => {
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
+					className: "mb-6 rounded-xl border border-border bg-surface p-4",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "mb-2 flex items-center justify-between gap-3",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
+							className: "text-sm font-semibold",
+							children: "Team comments"
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+							type: "button",
+							className: "min-h-11 text-sm text-primary",
+							onClick: () => {
+								loadShared({ data: { email: who.email } }).then((snap) => {
+									setComments(snap.comments);
+									setTeamAnswers(snap.answers);
+									if (snap.goals.length > 0) setState((prev) => prev ? {
+										...prev,
+										goals: snap.goals
+									} : prev);
+									setToast("Team comments updated");
+								}).catch(() => setToast("Could not refresh comments."));
+							},
+							children: "Refresh"
+						})]
+					}), comments.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+						className: "text-sm text-muted",
+						children: "No comments yet. A comment here is visible to Mary, Jay, and Ben."
+					}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
+						className: "space-y-2",
+						children: comments.map((comment) => {
+							const goal = state.goals.find((item) => item.id === comment.goal_id);
+							return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
+								className: "text-sm",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+									className: "font-medium",
+									children: comment.author
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+									className: "text-muted",
+									children: [
+										" ",
+										"on ",
+										goal ? goal.title : "a goal",
+										": ",
+										comment.body
+									]
+								})]
+							}, comment.id);
+						})
+					})]
+				}), WEEKS.filter((w) => week === "all" || week === w.id).map((w) => {
 					const goals = visible.filter((g) => g.week === w.id).sort((a, b) => a.number - b.number);
 					return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
 						className: "mb-8",
@@ -1309,7 +1375,7 @@ function TrackerApp() {
 							}
 						}, g.id))]
 					}, w.id);
-				})
+				})]
 			}),
 			draft && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Editor, {
 				draft,

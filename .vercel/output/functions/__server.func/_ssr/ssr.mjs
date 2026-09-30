@@ -87,7 +87,7 @@ var HEADERS = { TSS_SHELL: "X-TSS_SHELL" };
 * the dev styles URL for route-scoped CSS collection.
 */
 async function getStartManifest(matchedRoutes) {
-	const { tsrStartManifest } = await import("../_tanstack-start-manifest_v-9d0Bf_GV.mjs");
+	const { tsrStartManifest } = await import("../_tanstack-start-manifest_v-BUnLC6Tj.mjs");
 	const startManifest = tsrStartManifest();
 	let routes = startManifest.routes;
 	routes[rootRouteId];
@@ -109,19 +109,19 @@ async function getStartManifest(matchedRoutes) {
 var manifest = {
 	"a3c280c3aea37e586efb8514a9ddc8e440e9a61f15370078a87cced767967cdc": {
 		functionName: "addComment_createServerFn_handler",
-		importer: () => import("./shared-DTRUpohU.mjs")
+		importer: () => import("./shared-Be-HsJz0.mjs")
 	},
 	"b0c7cb792e7d0700cfeee0557483816d4d19d0eafc88da92c0417ab802ed3d9e": {
 		functionName: "saveGoals_createServerFn_handler",
-		importer: () => import("./shared-DTRUpohU.mjs")
+		importer: () => import("./shared-Be-HsJz0.mjs")
 	},
 	"c9457b4136f459a1fee90d8c7edafb9ecec1d1cfa590570e1111302762702dc4": {
 		functionName: "loadShared_createServerFn_handler",
-		importer: () => import("./shared-DTRUpohU.mjs")
+		importer: () => import("./shared-Be-HsJz0.mjs")
 	},
 	"ec8a4decd42eafd626832a1d56d3d0dc0d3fae02619880ad9be72a686e09f11f": {
 		functionName: "saveMyAnswers_createServerFn_handler",
-		importer: () => import("./shared-DTRUpohU.mjs")
+		importer: () => import("./shared-Be-HsJz0.mjs")
 	}
 };
 async function getServerFnById(id, access) {
@@ -1515,7 +1515,7 @@ var getBaseManifest = getProdBaseManifest;
 var createEarlyHintsForRequest = createEarlyHintsCollector;
 async function loadEntries() {
 	const [routerEntry, startEntry, pluginAdapters] = await Promise.all([
-		import("./router-DZsJfGIA.mjs").then((n) => n.t),
+		import("./router-DGC1yRnB.mjs").then((n) => n.t),
 		import("./start-5Z2QO8AU.mjs"),
 		import("./empty-plugin-adapters-D9UWiqvJ.mjs")
 	]);

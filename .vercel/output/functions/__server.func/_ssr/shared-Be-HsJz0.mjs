@@ -1,6 +1,6 @@
 import { n as TSS_SERVER_FUNCTION, t as createServerFn } from "./ssr.mjs";
-import { n as matchTeam } from "./team-BwqprQbA.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/shared-DTRUpohU.js
+import { n as matchTeam } from "./team-C3E8MDHu.mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/shared-Be-HsJz0.js
 var createServerRpc = (serverFnMeta, splitImportFn) => {
 	const url = "/_serverFn/" + serverFnMeta.id;
 	return Object.assign(splitImportFn, {
@@ -180,10 +180,72 @@ if (typeof window === "undefined" && dbSource === "pglite") globalBoot.__pgBoots
 	console.error("[db] PGLite bootstrap failed:", err);
 	throw err;
 });
+var emptyDoc = () => ({
+	goals: [],
+	comments: [],
+	answers: []
+});
 function memberOrThrow(email) {
 	const member = matchTeam(email);
 	if (!member) throw new Error("That email is not on the team.");
 	return member;
+}
+function blobToken() {
+	const value = process.env["BLOB_READ_WRITE_TOKEN"];
+	return value && value.trim() ? value.trim() : "";
+}
+async function readBlob() {
+	const token = blobToken();
+	if (!token) return null;
+	const listed = await fetch("https://vercel.com/api/blob?prefix=team-board.json", { headers: {
+		authorization: `Bearer ${token}`,
+		"x-api-version": "12"
+	} });
+	if (!listed.ok) throw new Error("Could not read the team board.");
+	const hit = (await listed.json()).blobs?.find((blob) => blob.pathname === "team-board.json");
+	if (!hit) return emptyDoc();
+	const file = await fetch(hit.url, {
+		headers: { authorization: `Bearer ${token}` },
+		cache: "no-store"
+	});
+	if (!file.ok) throw new Error("Could not read the team board.");
+	return await file.json();
+}
+async function writeBlob(doc) {
+	const token = blobToken();
+	if (!token) return;
+	if (!(await fetch("https://vercel.com/api/blob/?pathname=team-board.json", {
+		method: "PUT",
+		body: JSON.stringify(doc),
+		headers: {
+			authorization: `Bearer ${token}`,
+			"x-api-version": "12",
+			"x-vercel-blob-access": "private",
+			"x-content-type": "application/json",
+			"x-add-random-suffix": "0",
+			"x-allow-overwrite": "1"
+		}
+	})).ok) throw new Error("Could not save the team board.");
+}
+async function readSql() {
+	const sql = await getSql();
+	const boards = await sql`select goals from hyrax_board where id = 1`;
+	const answers = await sql`select author, body from hyrax_answers order by author`;
+	const comments = await sql`
+    select id, goal_id, author, body, created_at::text as created_at
+    from hyrax_comments
+    order by created_at
+  `;
+	return {
+		goals: boards[0]?.goals ?? [],
+		comments,
+		answers
+	};
+}
+async function readDoc() {
+	const blob = await readBlob();
+	if (blob) return blob;
+	return readSql();
 }
 var loadShared_createServerFn_handler = createServerRpc({
 	id: "c9457b4136f459a1fee90d8c7edafb9ecec1d1cfa590570e1111302762702dc4",
@@ -192,20 +254,13 @@ var loadShared_createServerFn_handler = createServerRpc({
 }, (opts) => loadShared.__executeServer(opts));
 var loadShared = createServerFn({ method: "POST" }).validator((input) => input).handler(loadShared_createServerFn_handler, async ({ data }) => {
 	const member = memberOrThrow(data.email);
-	const sql = await getSql();
-	const boards = await sql`select goals from hyrax_board where id = 1`;
-	const answers = await sql`select author, body from hyrax_answers order by author`;
-	const comments = await sql`
-      select id, goal_id, author, body, created_at::text as created_at
-      from hyrax_comments
-      order by created_at
-    `;
+	const doc = await readDoc();
 	return {
 		name: member.name,
 		role: member.role,
-		goals: boards[0]?.goals ?? [],
-		answers,
-		comments
+		goals: doc.goals,
+		answers: doc.answers,
+		comments: doc.comments
 	};
 });
 var saveGoals_createServerFn_handler = createServerRpc({
@@ -215,6 +270,13 @@ var saveGoals_createServerFn_handler = createServerRpc({
 }, (opts) => saveGoals.__executeServer(opts));
 var saveGoals = createServerFn({ method: "POST" }).validator((input) => input).handler(saveGoals_createServerFn_handler, async ({ data }) => {
 	if (memberOrThrow(data.email).role !== "owner") throw new Error("Only the owner can change the board.");
+	if (blobToken()) {
+		await writeBlob({
+			...await readBlob() ?? emptyDoc(),
+			goals: data.goals
+		});
+		return { ok: true };
+	}
 	await (await getSql())`update hyrax_board set goals = ${JSON.stringify(data.goals)}::jsonb where id = 1`;
 	return { ok: true };
 });
@@ -225,6 +287,22 @@ var saveMyAnswers_createServerFn_handler = createServerRpc({
 }, (opts) => saveMyAnswers.__executeServer(opts));
 var saveMyAnswers = createServerFn({ method: "POST" }).validator((input) => input).handler(saveMyAnswers_createServerFn_handler, async ({ data }) => {
 	const member = memberOrThrow(data.email);
+	if (blobToken()) {
+		const doc = await readBlob() ?? emptyDoc();
+		const answers = doc.answers.filter((row) => row.author !== member.name);
+		answers.push({
+			author: member.name,
+			body: data.answers
+		});
+		await writeBlob({
+			...doc,
+			answers
+		});
+		return {
+			ok: true,
+			author: member.name
+		};
+	}
 	await (await getSql())`
       insert into hyrax_answers (author, body)
       values (${member.name}, ${JSON.stringify(data.answers)}::jsonb)
@@ -245,10 +323,24 @@ var addComment = createServerFn({ method: "POST" }).validator((input) => input).
 	const member = memberOrThrow(data.email);
 	const body = data.body.trim();
 	if (!body) throw new Error("Comment is empty.");
-	const id = crypto.randomUUID();
+	const row = {
+		id: crypto.randomUUID(),
+		goal_id: data.goalId,
+		author: member.name,
+		body,
+		created_at: (/* @__PURE__ */ new Date()).toISOString()
+	};
+	if (blobToken()) {
+		const doc = await readBlob() ?? emptyDoc();
+		await writeBlob({
+			...doc,
+			comments: [...doc.comments, row]
+		});
+		return row;
+	}
 	return (await (await getSql())`
       insert into hyrax_comments (id, goal_id, author, body)
-      values (${id}, ${data.goalId}, ${member.name}, ${body})
+      values (${row.id}, ${row.goal_id}, ${row.author}, ${row.body})
       returning id, goal_id, author, body, created_at::text as created_at
     `)[0];
 });

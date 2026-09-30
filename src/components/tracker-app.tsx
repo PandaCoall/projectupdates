@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { AnswersView } from "@/components/answers-view";
 import { PeopleView } from "@/components/people-view";
-import { addComment, loadShared, saveGoals, saveMyAnswers, type SharedComment } from "@/lib/shared";
+import { addComment, loadShared, saveGoals, saveMyAnswers, type SharedAnswer, type SharedComment } from "@/lib/shared";
 import { matchTeam, type TeamMember } from "@/lib/team";
 import { withAnswers } from "@/lib/answers";
 import {
@@ -55,7 +55,7 @@ export function TrackerApp() {
   const [gateReady, setGateReady] = useState(false);
   const [sharedReady, setSharedReady] = useState(false);
   const [comments, setComments] = useState<SharedComment[]>([]);
-  const [answerAuthors, setAnswerAuthors] = useState<string[]>([]);
+  const [teamAnswers, setTeamAnswers] = useState<SharedAnswer[]>([]);
 
   useEffect(() => {
     setState(loadState());
@@ -81,14 +81,14 @@ export function TrackerApp() {
       .then((snap) => {
         if (cancel) return;
         setComments(snap.comments);
-        setAnswerAuthors(snap.answers.map((row) => row.author));
+        setTeamAnswers(snap.answers);
         setState((prev) => {
           if (!prev) return prev;
           const mine = snap.answers.find((row) => row.author === who.name);
           return {
             ...prev,
             goals: snap.goals.length > 0 ? snap.goals : prev.goals,
-            answers: who.role === "member" && mine ? mine.body : prev.answers,
+            answers: mine ? mine.body : prev.answers,
           };
         });
         setSharedReady(true);
@@ -300,22 +300,81 @@ export function TrackerApp() {
       </header>
 
       {view === "answers" ? (
+        <>
         <AnswersView
           answers={state.answers}
           onChange={(answers) => {
             setState({ ...state, answers });
             saveMyAnswers({ data: { email: who.email, answers } })
               .then(() => {
-                setAnswerAuthors((prev) => (prev.includes(who.name) ? prev : [...prev, who.name]));
+                setTeamAnswers((prev) => [
+                  ...prev.filter((row) => row.author !== who.name),
+                  { author: who.name, body: answers },
+                ]);
                 setToast(`Saved under ${who.name}`);
               })
               .catch(() => setToast("Could not save answers."));
           }}
         />
+        {teamAnswers.filter((row) => row.author !== who.name).length > 0 && (
+          <section className="mx-auto max-w-5xl space-y-3 px-4 pb-8">
+            <h2 className="text-sm font-semibold">Everyone else's answers</h2>
+            {teamAnswers
+              .filter((row) => row.author !== who.name)
+              .map((row) => (
+                <article key={row.author} className="rounded-xl border border-border bg-surface p-4 text-sm">
+                  <p className="font-medium">{row.author}</p>
+                  <p className="mt-2 whitespace-pre-wrap text-muted">{row.body.sow.building || "No scope written yet."}</p>
+                </article>
+              ))}
+          </section>
+        )}
+        </>
       ) : view === "people" ? (
         <PeopleView />
       ) : (
       <main className="mx-auto max-w-5xl px-4 py-6">
+        <section className="mb-6 rounded-xl border border-border bg-surface p-4">
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <h2 className="text-sm font-semibold">Team comments</h2>
+            <button
+              type="button"
+              className="min-h-11 text-sm text-primary"
+              onClick={() => {
+                loadShared({ data: { email: who.email } })
+                  .then((snap) => {
+                    setComments(snap.comments);
+                    setTeamAnswers(snap.answers);
+                    if (snap.goals.length > 0) {
+                      setState((prev) => (prev ? { ...prev, goals: snap.goals } : prev));
+                    }
+                    setToast("Team comments updated");
+                  })
+                  .catch(() => setToast("Could not refresh comments."));
+              }}
+            >
+              Refresh
+            </button>
+          </div>
+          {comments.length === 0 ? (
+            <p className="text-sm text-muted">No comments yet. A comment here is visible to Mary, Jay, and Ben.</p>
+          ) : (
+            <ul className="space-y-2">
+              {comments.map((comment) => {
+                const goal = state.goals.find((item) => item.id === comment.goal_id);
+                return (
+                  <li key={comment.id} className="text-sm">
+                    <span className="font-medium">{comment.author}</span>
+                    <span className="text-muted">
+                      {" "}
+                      on {goal ? goal.title : "a goal"}: {comment.body}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </section>
         {WEEKS.filter((w) => week === "all" || week === w.id).map((w) => {
           const goals = visible
             .filter((g) => g.week === w.id)

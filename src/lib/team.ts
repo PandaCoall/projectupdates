@@ -14,6 +14,7 @@ export type TeamMember = {
 export const TEAM: TeamMember[] = [
   { name: "Mary", email: "mary@hyraxteam", role: "owner" },
   { name: "Jay", email: "jeremiahworkpc@gmail.com", role: "owner" },
+  { name: "Ben", email: "ben@hyrax.com", role: "owner" },
 ];
 
 export function matchTeam(email: string): TeamMember | null {

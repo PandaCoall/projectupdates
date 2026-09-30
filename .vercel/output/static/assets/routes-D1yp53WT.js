@@ -1,0 +1,1 @@
+import{n as e}from"./tracker-app-ph7kmREX.js";var t=e;export{t as component};
