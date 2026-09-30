@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f1216">
+  <title>Hyrax October Tracker</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <h1>Hyrax October Tracker</h1>
+      <span>Goals → milestones · status · due · notes</span>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="sGoals">0</b><small>Goals</small></div>
+      <div class="stat"><b id="sMs">0</b><small>Milestones</small></div>
+      <div class="stat"><b id="sDone">0</b><small>Done</small></div>
+      <div class="stat"><b id="sBlock">0</b><small>Blocked</small></div>
+    </div>
+    <div class="actions">
+      <button class="primary" data-act="add-goal" data-week="w2">+ Goal</button>
+      <button data-act="export">Export JSON</button>
+      <button data-act="import">Import</button>
+      <button data-act="reset">Reset seed</button>
+      <input id="fileIn" type="file" accept="application/json" hidden>
+    </div>
+  </header>
+
+  <div class="filters">
+    <select id="weekFilter">
+      <option value="all">All weeks</option>
+      <option value="w1">Week 1</option>
+      <option value="w2">Week 2</option>
+      <option value="w3">Week 3</option>
+      <option value="w4">Week 4</option>
+    </select>
+    <select id="statusFilter">
+      <option value="all">Any status</option>
+      <option value="not_started">Not started</option>
+      <option value="in_progress">In progress</option>
+      <option value="blocked">Blocked</option>
+      <option value="done">Done</option>
+    </select>
+    <input id="search" type="search" placeholder="Search goals and milestones">
+  </div>
+
+  <main id="weeks"></main>
+  <div id="modal" class="modal-bg" hidden></div>
+  <div id="toast" class="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>

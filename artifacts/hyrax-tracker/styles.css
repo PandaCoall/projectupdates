@@ -1,0 +1,158 @@
+:root {
+  --bg: #0f1216;
+  --bg-elev: #171c22;
+  --bg-card: #1c232c;
+  --line: #2a3340;
+  --text: #e8edf3;
+  --muted: #8b98a8;
+  --accent: #7eb8ff;
+  --accent-dim: #3d5a73;
+  --gold: #c9a227;
+  --ok: #3dba84;
+  --warn: #d4a017;
+  --block: #e06c75;
+  --idle: #6b7785;
+  --radius: 12px;
+  --font: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--text); font-family: var(--font); }
+body { padding: 0 0 80px; }
+
+.app-header {
+  position: sticky; top: 0; z-index: 20;
+  background: rgba(15,18,22,.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+  padding: 14px 20px;
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+}
+.brand { display: flex; flex-direction: column; gap: 2px; min-width: 180px; }
+.brand h1 { margin: 0; font-size: 16px; font-weight: 600; letter-spacing: .02em; }
+.brand span { color: var(--muted); font-size: 12px; }
+
+.stats { display: flex; gap: 10px; flex: 1; flex-wrap: wrap; }
+.stat {
+  background: var(--bg-elev); border: 1px solid var(--line);
+  border-radius: 8px; padding: 6px 10px; min-width: 88px;
+}
+.stat b { display: block; font-size: 16px; }
+.stat small { color: var(--muted); font-size: 11px; }
+
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+button, .btn {
+  font-family: inherit; font-size: 13px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--bg-elev); color: var(--text);
+  border-radius: 8px; padding: 8px 12px;
+}
+button.primary { background: var(--accent); color: #0b1220; border-color: transparent; font-weight: 600; }
+button.ghost:hover, button:hover { border-color: var(--accent-dim); }
+button.danger { color: var(--block); }
+button:disabled { opacity: .45; cursor: not-allowed; }
+
+.filters {
+  padding: 12px 20px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+  border-bottom: 1px solid var(--line);
+}
+.filters select, .filters input[type="search"] {
+  background: var(--bg-elev); color: var(--text); border: 1px solid var(--line);
+  border-radius: 8px; padding: 7px 10px; font-family: inherit; font-size: 13px;
+}
+.filters input[type="search"] { min-width: 200px; }
+
+main { max-width: 980px; margin: 0 auto; padding: 18px 16px; }
+
+.week {
+  margin-bottom: 28px;
+}
+.week-head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  margin-bottom: 10px;
+}
+.week-head h2 { margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+.week-head .meta { font-size: 12px; color: var(--muted); }
+
+.goal {
+  background: var(--bg-card); border: 1px solid var(--line);
+  border-radius: var(--radius); margin-bottom: 12px; overflow: hidden;
+}
+.goal-head {
+  display: grid; grid-template-columns: auto 1fr auto;
+  gap: 12px; align-items: start; padding: 14px 14px 10px;
+}
+.goal-num {
+  font-family: var(--mono); font-size: 12px; color: var(--gold);
+  background: #2a2414; border-radius: 6px; padding: 4px 7px; margin-top: 2px;
+}
+.goal-title { margin: 0; font-size: 16px; font-weight: 600; }
+.goal-desc { margin: 6px 0 0; color: var(--muted); font-size: 13px; line-height: 1.45; white-space: pre-wrap; }
+.goal-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.progress-wrap { width: 120px; }
+.progress-bar { height: 6px; background: #2a3340; border-radius: 99px; overflow: hidden; }
+.progress-bar > span { display: block; height: 100%; background: var(--ok); }
+.progress-label { font-size: 11px; color: var(--muted); text-align: right; margin-top: 4px; }
+
+.milestones { padding: 0 10px 10px; }
+.ms {
+  display: grid;
+  grid-template-columns: 16px 1fr 140px 130px auto;
+  gap: 8px; align-items: start;
+  padding: 10px 8px; border-top: 1px solid var(--line);
+}
+.ms .title { font-size: 14px; font-weight: 500; }
+.ms .notes { font-size: 12px; color: var(--muted); margin-top: 4px; white-space: pre-wrap; }
+.ms select, .ms input[type="date"] {
+  width: 100%; background: var(--bg-elev); color: var(--text);
+  border: 1px solid var(--line); border-radius: 6px; padding: 5px 6px; font-size: 12px; font-family: inherit;
+}
+.status-dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 6px; }
+.status-dot.not_started { background: var(--idle); }
+.status-dot.in_progress { background: var(--accent); }
+.status-dot.blocked { background: var(--block); }
+.status-dot.done { background: var(--ok); }
+
+.ms-actions { display: flex; gap: 4px; }
+.ms-actions button { padding: 5px 8px; font-size: 12px; }
+
+.add-row { padding: 8px 18px 14px; }
+.add-row button { font-size: 12px; }
+
+.goal-actions { display: flex; gap: 6px; justify-content: flex-end; padding: 0 14px 12px; }
+
+.modal-bg {
+  position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 40;
+  display: flex; align-items: flex-start; justify-content: center; padding: 8vh 16px;
+}
+.modal {
+  background: var(--bg-card); border: 1px solid var(--line); border-radius: 14px;
+  width: min(560px, 100%); padding: 18px;
+}
+.modal h3 { margin: 0 0 12px; font-size: 16px; }
+.modal label { display: block; font-size: 12px; color: var(--muted); margin: 10px 0 4px; }
+.modal input, .modal textarea, .modal select {
+  width: 100%; background: var(--bg); color: var(--text); border: 1px solid var(--line);
+  border-radius: 8px; padding: 8px 10px; font-family: inherit; font-size: 14px;
+}
+.modal textarea { min-height: 90px; resize: vertical; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+
+.empty {
+  border: 1px dashed var(--line); border-radius: var(--radius);
+  padding: 22px; color: var(--muted); text-align: center; font-size: 13px;
+}
+
+.toast {
+  position: fixed; bottom: 18px; right: 18px; background: #223044; color: var(--text);
+  border: 1px solid var(--line); padding: 10px 14px; border-radius: 8px; font-size: 13px;
+  z-index: 50; display: none;
+}
+
+@media (max-width: 720px) {
+  .ms { grid-template-columns: 16px 1fr; }
+  .ms select, .ms input[type="date"], .ms-actions { grid-column: 2; }
+  .progress-wrap { width: 80px; }
+  .goal-head { grid-template-columns: auto 1fr; }
+  .goal-meta { grid-column: 1 / -1; align-items: flex-start; }
+}

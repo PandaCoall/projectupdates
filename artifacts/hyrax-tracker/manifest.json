@@ -1,0 +1,18 @@
+{
+  "name": "Hyrax October Tracker",
+  "short_name": "Hyrax",
+  "description": "Offline project tracker for the Hyrax October pilot",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0f1216",
+  "theme_color": "#0f1216",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

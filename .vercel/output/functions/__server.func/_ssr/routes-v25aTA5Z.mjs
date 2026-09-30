@@ -1,0 +1,1483 @@
+import { i as __toESM } from "../_runtime.mjs";
+import { K as require_react, b as require_jsx_runtime } from "../_libs/@tanstack/react-router+[...].mjs";
+import { a as RotateCcw, c as Download, d as CircleCheck, f as Calendar, i as Search, l as Circle, o as Plus, r as Trash2, s as OctagonAlert, t as Upload, u as CircleDashed } from "../_libs/lucide-react.mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/routes-v25aTA5Z.js
+var import_react = /* @__PURE__ */ __toESM(require_react());
+var import_jsx_runtime = require_jsx_runtime();
+var FLOW_KINDS = [
+	{
+		id: "human",
+		label: "Human approval"
+	},
+	{
+		id: "ai",
+		label: "AI-driven"
+	},
+	{
+		id: "deterministic",
+		label: "Deterministic"
+	},
+	{
+		id: "async",
+		label: "Background"
+	},
+	{
+		id: "external",
+		label: "External provider"
+	}
+];
+var GEN_ROWS = [
+	{
+		key: "repeatability",
+		label: "Repeatable recipes"
+	},
+	{
+		key: "api",
+		label: "Headless / API call from Hyrax"
+	},
+	{
+		key: "queue",
+		label: "Queue large job volumes"
+	},
+	{
+		key: "versioning",
+		label: "Version the workflows"
+	},
+	{
+		key: "scale",
+		label: "Scale workers independently"
+	},
+	{
+		key: "swap",
+		label: "Swap a model without redesigning Hyrax"
+	}
+];
+function nid$1() {
+	return crypto.randomUUID();
+}
+function item(text = "") {
+	return {
+		id: nid$1(),
+		text
+	};
+}
+var emptyGen = () => ({
+	floyo: "",
+	comfy: "",
+	hosted: ""
+});
+function emptyAnswers() {
+	return {
+		sow: {
+			building: "",
+			inScope: [item()],
+			outOfScope: [item()],
+			deliverables: [item()],
+			path: [
+				item("UGC / presenter"),
+				item("B-roll"),
+				item("Captions"),
+				item("Voice / audio"),
+				item("Music / sound"),
+				item("CTA / end frame"),
+				item("Assembled first cut")
+			],
+			acceptance: "",
+			flags: [{
+				id: nid$1(),
+				concern: "",
+				alternative: ""
+			}]
+		},
+		flow: [
+			"Campaign / product rules",
+			"Job creation and budget",
+			"Asset retrieval or generation",
+			"Private storage and rights",
+			"Analysis and search",
+			"Creative Manifest",
+			"Deterministic render",
+			"QA checks",
+			"Editor review",
+			"Named approval"
+		].map((title) => ({
+			id: nid$1(),
+			title,
+			kind: "deterministic",
+			detail: ""
+		})),
+		requirements: [{
+			id: nid$1(),
+			item: "",
+			from: "Hyrax",
+			stage: "Before build",
+			blocker: false,
+			notes: ""
+		}],
+		generation: {
+			recommendation: "",
+			repeatability: emptyGen(),
+			api: emptyGen(),
+			queue: emptyGen(),
+			versioning: emptyGen(),
+			scale: emptyGen(),
+			swap: emptyGen()
+		}
+	};
+}
+function withAnswers(state) {
+	return {
+		...state,
+		answers: state.answers ?? emptyAnswers()
+	};
+}
+function nid() {
+	return crypto.randomUUID();
+}
+function AnswersView({ answers, onChange }) {
+	const sow = answers.sow;
+	function setSow(patch) {
+		onChange({
+			...answers,
+			sow: {
+				...sow,
+				...patch
+			}
+		});
+	}
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("main", {
+		className: "mx-auto max-w-5xl space-y-8 px-4 py-6",
+		children: [
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+				className: "text-sm text-muted",
+				children: "Write the October answers here in the shape they need to be delivered. The technical specification and the development pipeline are not in this tracker."
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Section, {
+				kicker: "Goal 1",
+				title: "Scope of work",
+				children: [
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
+						text: "What we are building",
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", {
+							className: "field min-h-28",
+							value: sow.building,
+							onChange: (e) => setSow({ building: e.target.value }),
+							placeholder: "One short statement of the October product."
+						})
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ListEditor, {
+						label: "In scope",
+						items: sow.inScope,
+						onChange: (inScope) => setSow({ inScope }),
+						placeholder: "One in-scope item"
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ListEditor, {
+						label: "Out of scope",
+						items: sow.outOfScope,
+						onChange: (outOfScope) => setSow({ outOfScope }),
+						placeholder: "One out-of-scope item"
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ListEditor, {
+						label: "Deliverables",
+						items: sow.deliverables,
+						onChange: (deliverables) => setSow({ deliverables }),
+						placeholder: "One deliverable"
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ListEditor, {
+						label: "Basic path that must exist in the first cut",
+						items: sow.path,
+						onChange: (path) => setSow({ path }),
+						placeholder: "Path item"
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
+						text: "Editor acceptance bar",
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", {
+							className: "field min-h-24",
+							value: sow.acceptance,
+							onChange: (e) => setSow({ acceptance: e.target.value }),
+							placeholder: "What has to be true for an editor to prefer this first cut over a blank timeline."
+						})
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+							className: "mb-2 text-sm text-muted",
+							children: "Flags and simpler alternatives"
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
+							className: "space-y-2",
+							children: sow.flags.map((flag) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
+								className: "grid gap-2 rounded-xl border border-border bg-surface p-3 sm:grid-cols-[1fr_1fr_auto]",
+								children: [
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+										className: "field",
+										value: flag.concern,
+										placeholder: "What looks unrealistic or unnecessary",
+										onChange: (e) => setSow({ flags: sow.flags.map((f) => f.id === flag.id ? {
+											...f,
+											concern: e.target.value
+										} : f) })
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+										className: "field",
+										value: flag.alternative,
+										placeholder: "Simpler alternative",
+										onChange: (e) => setSow({ flags: sow.flags.map((f) => f.id === flag.id ? {
+											...f,
+											alternative: e.target.value
+										} : f) })
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+										type: "button",
+										"aria-label": "Remove flag",
+										className: "min-h-11 text-alert",
+										onClick: () => setSow({ flags: sow.flags.filter((f) => f.id !== flag.id) }),
+										children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Trash2, { size: 16 })
+									})
+								]
+							}, flag.id))
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+							type: "button",
+							className: "mt-2 inline-flex min-h-11 items-center gap-1 text-sm text-primary",
+							onClick: () => setSow({ flags: [...sow.flags, {
+								id: nid(),
+								concern: "",
+								alternative: ""
+							}] }),
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { size: 14 }), " Flag"]
+						})
+					] })
+				]
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Section, {
+				kicker: "Goal 2",
+				title: "Process flowchart",
+				children: [
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+						className: "text-sm text-muted",
+						children: "Each box is a hand-off. Mark whether it is a person, an AI proposal, deterministic software, background work, or an outside provider."
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("ol", {
+						className: "relative space-y-0 border-l border-border pl-4",
+						children: answers.flow.map((step, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
+							className: "relative pb-4",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "absolute top-4 -left-[1.3rem] size-2.5 rounded-full bg-primary" }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "rounded-xl border border-border bg-surface p-3",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "mb-2 flex flex-wrap items-center gap-2",
+									children: [
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+											className: "font-mono text-xs text-muted",
+											children: String(index).padStart(2, "0")
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+											className: "field min-w-40 flex-1",
+											value: step.title,
+											onChange: (e) => updateStep(answers, onChange, step.id, { title: e.target.value })
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("select", {
+											className: "field w-auto",
+											value: step.kind,
+											"aria-label": "Step type",
+											onChange: (e) => updateStep(answers, onChange, step.id, { kind: e.target.value }),
+											children: FLOW_KINDS.map((k) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
+												value: k.id,
+												children: k.label
+											}, k.id))
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+											type: "button",
+											"aria-label": "Remove step",
+											className: "min-h-11 px-2 text-alert",
+											onClick: () => onChange({
+												...answers,
+												flow: answers.flow.filter((s) => s.id !== step.id)
+											}),
+											children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Trash2, { size: 16 })
+										})
+									]
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", {
+									className: "field min-h-16",
+									value: step.detail,
+									placeholder: "What happens, what is handed on, and where it can stop.",
+									onChange: (e) => updateStep(answers, onChange, step.id, { detail: e.target.value })
+								})]
+							})]
+						}, step.id))
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+						type: "button",
+						className: "inline-flex min-h-11 items-center gap-1 text-sm text-primary",
+						onClick: () => onChange({
+							...answers,
+							flow: [...answers.flow, {
+								id: nid(),
+								title: "",
+								kind: "deterministic",
+								detail: ""
+							}]
+						}),
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { size: 14 }), " Step"]
+					})
+				]
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Section, {
+				kicker: "Goal 4",
+				title: "Requirements and dependencies",
+				children: [
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+						className: "text-sm text-muted",
+						children: "One row per thing you need. Say who provides it, which stage needs it, and whether work actually stops without it."
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
+						className: "space-y-3",
+						children: answers.requirements.map((row) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", {
+							className: "rounded-xl border border-border bg-surface p-3",
+							children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "grid gap-2 sm:grid-cols-2",
+								children: [
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+										className: "field sm:col-span-2",
+										value: row.item,
+										placeholder: "Account, asset, decision, or access",
+										onChange: (e) => updateReq(answers, onChange, row.id, { item: e.target.value })
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("select", {
+										className: "field",
+										value: row.from,
+										"aria-label": "Provided by",
+										onChange: (e) => updateReq(answers, onChange, row.id, { from: e.target.value }),
+										children: [
+											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
+												value: "Hyrax",
+												children: "From Hyrax"
+											}),
+											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
+												value: "Mary",
+												children: "From Mary"
+											}),
+											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
+												value: "Both",
+												children: "Both"
+											})
+										]
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+										className: "field",
+										value: row.stage,
+										placeholder: "Stage that needs it",
+										onChange: (e) => updateReq(answers, onChange, row.id, { stage: e.target.value })
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+										className: "flex min-h-11 items-center gap-2 text-sm",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+											type: "checkbox",
+											checked: row.blocker,
+											onChange: (e) => updateReq(answers, onChange, row.id, { blocker: e.target.checked })
+										}), "Hard blocker"]
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+										type: "button",
+										className: "min-h-11 text-left text-sm text-alert",
+										onClick: () => onChange({
+											...answers,
+											requirements: answers.requirements.filter((r) => r.id !== row.id)
+										}),
+										children: "Remove"
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", {
+										className: "field min-h-16 sm:col-span-2",
+										value: row.notes,
+										placeholder: "Notes",
+										onChange: (e) => updateReq(answers, onChange, row.id, { notes: e.target.value })
+									})
+								]
+							})
+						}, row.id))
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+						type: "button",
+						className: "inline-flex min-h-11 items-center gap-1 text-sm text-primary",
+						onClick: () => onChange({
+							...answers,
+							requirements: [...answers.requirements, {
+								id: nid(),
+								item: "",
+								from: "Hyrax",
+								stage: "",
+								blocker: false,
+								notes: ""
+							}]
+						}),
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { size: 14 }), " Requirement"]
+					})
+				]
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Section, {
+				kicker: "Goal 5",
+				title: "Generation layer",
+				children: [
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+						className: "text-sm text-muted",
+						children: "Floyo, self-hosted ComfyUI, or a hosted API as the recipe layer under Hyrax. The gated build pipeline is not tracked here."
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+						className: "overflow-x-auto rounded-xl border border-border",
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("table", {
+							className: "w-full min-w-[40rem] border-collapse text-sm",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("thead", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("tr", {
+								className: "border-b border-border bg-surface text-left text-muted",
+								children: [
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
+										className: "p-3 font-medium",
+										children: "Question"
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
+										className: "p-3 font-medium",
+										children: "Floyo"
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
+										className: "p-3 font-medium",
+										children: "Self-hosted ComfyUI"
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
+										className: "p-3 font-medium",
+										children: "Hosted API"
+									})
+								]
+							}) }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("tbody", { children: GEN_ROWS.map((row) => {
+								const notes = answers.generation[row.key];
+								if (typeof notes === "string") return null;
+								return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("tr", {
+									className: "border-b border-border align-top",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
+										className: "p-3 text-left font-medium",
+										children: row.label
+									}), [
+										"floyo",
+										"comfy",
+										"hosted"
+									].map((col) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", {
+										className: "p-2",
+										children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", {
+											className: "field min-h-20",
+											value: notes[col],
+											onChange: (e) => onChange({
+												...answers,
+												generation: {
+													...answers.generation,
+													[row.key]: {
+														...notes,
+														[col]: e.target.value
+													}
+												}
+											})
+										})
+									}, col))]
+								}, row.key);
+							}) })]
+						})
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
+						text: "Recommendation",
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", {
+							className: "field min-h-28",
+							value: answers.generation.recommendation,
+							placeholder: "The simplest option that is repeatable now and can scale or swap later.",
+							onChange: (e) => onChange({
+								...answers,
+								generation: {
+									...answers.generation,
+									recommendation: e.target.value
+								}
+							})
+						})
+					})
+				]
+			})
+		]
+	});
+}
+function updateStep(answers, onChange, id, patch) {
+	onChange({
+		...answers,
+		flow: answers.flow.map((s) => s.id === id ? {
+			...s,
+			...patch
+		} : s)
+	});
+}
+function updateReq(answers, onChange, id, patch) {
+	onChange({
+		...answers,
+		requirements: answers.requirements.map((r) => r.id === id ? {
+			...r,
+			...patch
+		} : r)
+	});
+}
+function Section({ kicker, title, children }) {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
+		className: "space-y-4",
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+			className: "font-mono text-xs tracking-widest text-primary uppercase",
+			children: kicker
+		}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
+			className: "text-xl font-semibold",
+			children: title
+		})] }), children]
+	});
+}
+function Label({ text, children }) {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+		className: "block text-sm text-muted",
+		children: [text, /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+			className: "mt-1 text-fg",
+			children
+		})]
+	});
+}
+function ListEditor({ label, items, onChange, placeholder }) {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+		/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+			className: "mb-2 text-sm text-muted",
+			children: label
+		}),
+		/* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
+			className: "space-y-2",
+			children: items.map((item) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
+				className: "flex gap-2",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+					className: "field",
+					value: item.text,
+					placeholder,
+					onChange: (e) => onChange(items.map((x) => x.id === item.id ? {
+						...x,
+						text: e.target.value
+					} : x))
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+					type: "button",
+					"aria-label": `Remove ${label}`,
+					className: "min-h-11 px-2 text-alert",
+					onClick: () => onChange(items.filter((x) => x.id !== item.id)),
+					children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Trash2, { size: 16 })
+				})]
+			}, item.id))
+		}),
+		/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+			type: "button",
+			className: "mt-2 inline-flex min-h-11 items-center gap-1 text-sm text-primary",
+			onClick: () => onChange([...items, {
+				id: nid(),
+				text: ""
+			}]),
+			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { size: 14 }), " Add"]
+		})
+	] });
+}
+var STORAGE_KEY = "hyrax-october-tracker-v3";
+var LEGACY_KEY = "hyrax-october-tracker-v2";
+var STATUSES = [
+	{
+		id: "not_started",
+		label: "Not started"
+	},
+	{
+		id: "in_progress",
+		label: "In progress"
+	},
+	{
+		id: "blocked",
+		label: "Blocked"
+	},
+	{
+		id: "done",
+		label: "Done"
+	}
+];
+var WEEKS = [
+	{
+		id: "w1",
+		label: "Week 1",
+		range: "1–7 Oct"
+	},
+	{
+		id: "w2",
+		label: "Week 2",
+		range: "8–14 Oct"
+	},
+	{
+		id: "w3",
+		label: "Week 3",
+		range: "15–21 Oct"
+	},
+	{
+		id: "w4",
+		label: "Week 4",
+		range: "22–31 Oct"
+	}
+];
+function id() {
+	return crypto.randomUUID();
+}
+function ms(title, due, notes) {
+	return {
+		id: id(),
+		title,
+		status: "not_started",
+		due,
+		notes
+	};
+}
+function seedData() {
+	return {
+		project: "Hyrax AI Video Production Pilot",
+		briefDate: "2026-09-28",
+		answers: emptyAnswers(),
+		goals: [
+			{
+				id: id(),
+				week: "w1",
+				number: 1,
+				title: "Define Scope of Work",
+				description: "Turn the 28 Sep 2026 overview into a concise October SOW: what is being built, in and out of scope, and deliverables. Flag anything unrealistic or simpler to do another way.\nProduct: controlled internal line from an approved script to a near-finished 9:16 first cut. AI proposes bounded decisions. Deterministic software executes them.\nPilot is narrow: one campaign or product, one approved script, one ~30s 9:16, one presenter workflow, one ad per job.",
+				notes: "",
+				due: "2026-10-07",
+				milestones: [
+					ms("Write concise October SOW (in / out of scope + deliverables)", "2026-10-03", "Out of scope includes autonomous strategy, unlimited variants, a browser Premiere, auto-publish, and commercial-performance claims."),
+					ms("Define the editor first-cut acceptance bar", "2026-10-07", "Editor prefers the system first cut over a blank Premiere timeline. If they throw it away and rebuild, the milestone is not met."),
+					ms("Confirm the end-to-end basic path", "2026-10-07", "UGC/presenter, B-roll, captions, voice/audio where required, music/sound, CTA/end frame, assembled first cut.")
+				]
+			},
+			{
+				id: id(),
+				week: "w1",
+				number: 2,
+				title: "Create Process Flowchart",
+				description: "Turn overview steps 0–9 and the systems table into a technical flowchart of real systems and hand-offs.",
+				notes: "",
+				due: "2026-10-07",
+				milestones: [
+					ms("Map job creation through asset retrieval, storage and analysis", "2026-10-05", "Steps 0–4: rules, job and budget, presenter and supporting assets, private retention and rights, search before generate."),
+					ms("Map Creative Manifest through render, QA, review and approval", "2026-10-05", "Steps 5–9: transcript and manifest, deterministic render, QA and policy checks, bounded editor correction, named approval."),
+					ms("Mark providers, async work, AI versus deterministic, and human gates", "2026-10-07", "AI proposes. The renderer executes. Human gates are editor review and policy, brand or release approval.")
+				]
+			},
+			{
+				id: id(),
+				week: "w1",
+				number: 3,
+				title: "Prepare Technical Specification / Build Guide",
+				description: "Turn the overview into the implementation spec: data contracts, APIs, integrations, job states, storage, Creative Manifest, rendering, auth, deployment, error and retry. The proposed stack is a direction, not a mandate.",
+				notes: "Answered outside this tracker. Use the development pipeline for this goal.",
+				due: "2026-10-07",
+				milestones: [
+					ms("Specify data model, schemas, job states and storage", "2026-10-06", "Contracts: Campaign/Product Policy, Job, Asset, Asset Segment, Creative Manifest, Review Decision, Provider Attempt."),
+					ms("Specify APIs, integrations, Creative Manifest and rendering flow", "2026-10-06", "Proposed direction: Next.js app, provider adapters, Remotion plus FFmpeg from the manifest. Recommend simpler alternatives where justified."),
+					ms("Specify auth, deployment, error and retry", "2026-10-07", "Keep controlled inputs, repeatability, traceability, private storage, rights awareness and human approval.")
+				]
+			},
+			{
+				id: id(),
+				week: "w1",
+				number: 4,
+				title: "Identify Requirements / Dependencies",
+				description: "Checklist of accounts, API access, credentials, infrastructure, assets, reference ads, campaign rules, editor input and decisions. Tag each by stage and whether it actually blocks progress.",
+				notes: "",
+				due: "2026-10-07",
+				milestones: [
+					ms("List accounts, API access, credentials and infrastructure", "2026-10-04", "Company-owned accounts, billing, paid-generation cap. Confirm Floyo or UGC export or API. Keys, GitHub, storage, render environment."),
+					ms("List assets, reference ads, campaign rules and editor input", "2026-10-04", "Lead and second editor. Named brand, policy or release owner. One approved campaign, script and brief. Five to ten test scripts. Three editable reference ads. Brand kit and asset library."),
+					ms("Tag each item by stage and whether it is a hard blocker", "2026-10-07", "Do not wait for the full list. Call out provider APIs, private storage, background jobs, rendering, rights, data protection and approvals.")
+				]
+			},
+			{
+				id: id(),
+				week: "w1",
+				number: 5,
+				title: "Finalise Development Roadmap",
+				description: "Break October into small gated stages with a deliverable and acceptance test each. Prove the narrow end-to-end path first. Measure editor touch time from approved script to an acceptable first cut versus the current manual workflow. Recommend the generation layer under Hyrax: Floyo, self-hosted ComfyUI, or hosted APIs.",
+				notes: "The gated build pipeline lives in the development tool. This tracker only holds the generation-layer comparison.",
+				due: "2026-10-07",
+				milestones: [
+					ms("Draft gated October stages with a deliverable and acceptance test each", "2026-10-06", "One active gate at a time: asset quality, then retention and search, then deterministic rendering, then constrained edit selection."),
+					ms("Define editor touch-time measurement for the pilot", "2026-10-07", "Approved script to acceptable finished advert versus the current manual workflow."),
+					ms("Compare Floyo, self-hosted ComfyUI and hosted API generation", "2026-10-07", "Versioned recipes called by Hyrax. Check headless ComfyUI, queues, workflow versioning, independent GPU workers, local models plus external APIs. Provider-independent.")
+				]
+			}
+		]
+	};
+}
+function loadState() {
+	try {
+		const raw = localStorage.getItem("hyrax-october-tracker-v3") ?? localStorage.getItem(LEGACY_KEY);
+		if (raw) return withAnswers(JSON.parse(raw));
+	} catch {}
+	return seedData();
+}
+function saveState(state) {
+	localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+function nextNumber(goals, week) {
+	const nums = goals.filter((g) => g.week === week).map((g) => g.number);
+	return (nums.length ? Math.max(...nums) : 0) + 1;
+}
+function progress(goal) {
+	const total = goal.milestones.length;
+	const done = goal.milestones.filter((m) => m.status === "done").length;
+	return {
+		done,
+		total,
+		pct: total ? Math.round(done / total * 100) : 0
+	};
+}
+function uid() {
+	return crypto.randomUUID();
+}
+function TrackerApp() {
+	const [state, setState] = (0, import_react.useState)(null);
+	const [week, setWeek] = (0, import_react.useState)("all");
+	const [status, setStatus] = (0, import_react.useState)("all");
+	const [query, setQuery] = (0, import_react.useState)("");
+	const [draft, setDraft] = (0, import_react.useState)(null);
+	const [view, setView] = (0, import_react.useState)("board");
+	const [toast, setToast] = (0, import_react.useState)("");
+	(0, import_react.useEffect)(() => {
+		setState(loadState());
+	}, []);
+	(0, import_react.useEffect)(() => {
+		if (state) saveState(state);
+	}, [state]);
+	(0, import_react.useEffect)(() => {
+		if (!toast) return;
+		const t = setTimeout(() => setToast(""), 1800);
+		return () => clearTimeout(t);
+	}, [toast]);
+	const counts = (0, import_react.useMemo)(() => {
+		const ms = state?.goals.flatMap((g) => g.milestones) ?? [];
+		return {
+			goals: state?.goals.length ?? 0,
+			milestones: ms.length,
+			done: ms.filter((m) => m.status === "done").length,
+			blocked: ms.filter((m) => m.status === "blocked").length
+		};
+	}, [state]);
+	if (!state) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("main", {
+		className: "mx-auto max-w-5xl px-4 py-10 text-muted",
+		children: "Loading tracker…"
+	});
+	const q = query.trim().toLowerCase();
+	const visible = state.goals.filter((g) => {
+		if (week !== "all" && g.week !== week) return false;
+		const blob = `${g.title} ${g.description} ${g.notes} ${g.milestones.map((m) => `${m.title} ${m.notes}`).join(" ")}`.toLowerCase();
+		if (q && !blob.includes(q)) return false;
+		if (status !== "all" && !g.milestones.some((m) => m.status === status)) return false;
+		return true;
+	});
+	function patch(fn) {
+		setState((s) => s ? fn(s) : s);
+	}
+	function exportJson() {
+		const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+		const a = document.createElement("a");
+		a.href = URL.createObjectURL(blob);
+		a.download = "hyrax-tracker.json";
+		a.click();
+		URL.revokeObjectURL(a.href);
+		setToast("Exported");
+	}
+	function importJson(file) {
+		file.text().then((text) => {
+			try {
+				const data = withAnswers(JSON.parse(text));
+				if (!Array.isArray(data.goals)) throw new Error("Missing goals");
+				setState(data);
+				setToast("Imported");
+			} catch {
+				setToast("Import failed");
+			}
+		});
+	}
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+		className: "min-h-screen bg-bg text-fg",
+		children: [
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
+				className: "sticky top-0 z-20 border-b border-border bg-bg/95 backdrop-blur",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					className: "mx-auto flex max-w-5xl flex-wrap items-center gap-4 px-4 py-4",
+					children: [
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "min-w-44",
+							children: [
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+									className: "font-mono text-xs tracking-wide text-primary",
+									children: "HYRAX"
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
+									className: "text-lg font-semibold leading-tight",
+									children: "October tracker"
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+									className: "text-sm text-muted",
+									children: view === "board" ? "Goals, milestones, status, due date, notes" : "SOW, flowchart, requirements, generation layer"
+								})
+							]
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "flex rounded-lg border border-border p-1",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+								type: "button",
+								className: `min-h-11 rounded-md px-3 text-sm ${view === "board" ? "bg-primary font-semibold text-primary-ink" : ""}`,
+								onClick: () => setView("board"),
+								children: "Board"
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+								type: "button",
+								className: `min-h-11 rounded-md px-3 text-sm ${view === "answers" ? "bg-primary font-semibold text-primary-ink" : ""}`,
+								onClick: () => setView("answers"),
+								children: "Answers"
+							})]
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("dl", {
+							className: "flex flex-1 flex-wrap gap-2",
+							children: [
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Stat, {
+									label: "Goals",
+									value: counts.goals
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Stat, {
+									label: "Milestones",
+									value: counts.milestones
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Stat, {
+									label: "Done",
+									value: counts.done
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Stat, {
+									label: "Blocked",
+									value: counts.blocked
+								})
+							]
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "flex flex-wrap gap-2",
+							children: [
+								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+									type: "button",
+									className: "inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-semibold text-primary-ink",
+									onClick: () => setDraft({
+										kind: "goal",
+										isNew: true,
+										goal: blankGoal(state.goals, week === "all" ? "w2" : week)
+									}),
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { size: 16 }), " Goal"]
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(IconButton, {
+									label: "Export",
+									onClick: exportJson,
+									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Download, { size: 16 })
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+									className: "inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border border-border bg-surface px-3 text-sm",
+									children: [
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Upload, { size: 16 }),
+										" Import",
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+											type: "file",
+											accept: "application/json",
+											className: "sr-only",
+											onChange: (e) => {
+												const f = e.target.files?.[0];
+												if (f) importJson(f);
+												e.target.value = "";
+											}
+										})
+									]
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(IconButton, {
+									label: "Reset",
+									onClick: () => {
+										if (confirm("Replace this board with the original Week 1 seed?")) {
+											setState(seedData());
+											setToast("Reset");
+										}
+									},
+									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RotateCcw, { size: 16 })
+								})
+							]
+						})
+					]
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					className: "mx-auto flex max-w-5xl flex-wrap gap-2 px-4 pb-4",
+					children: [
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("select", {
+							className: "min-h-11 rounded-lg border border-border bg-surface px-3 text-sm",
+							value: week,
+							onChange: (e) => setWeek(e.target.value),
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
+								value: "all",
+								children: "All weeks"
+							}), WEEKS.map((w) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
+								value: w.id,
+								children: w.label
+							}, w.id))]
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("select", {
+							className: "min-h-11 rounded-lg border border-border bg-surface px-3 text-sm",
+							value: status,
+							onChange: (e) => setStatus(e.target.value),
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
+								value: "all",
+								children: "Any status"
+							}), STATUSES.map((s) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
+								value: s.id,
+								children: s.label
+							}, s.id))]
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+							className: "flex min-h-11 min-w-52 flex-1 items-center gap-2 rounded-lg border border-border bg-surface px-3 text-sm",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, {
+								size: 16,
+								className: "text-muted"
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+								value: query,
+								onChange: (e) => setQuery(e.target.value),
+								placeholder: "Search",
+								className: "w-full bg-transparent outline-none placeholder:text-muted"
+							})]
+						})
+					]
+				})]
+			}),
+			view === "answers" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(AnswersView, {
+				answers: state.answers,
+				onChange: (answers) => setState({
+					...state,
+					answers
+				})
+			}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("main", {
+				className: "mx-auto max-w-5xl px-4 py-6",
+				children: WEEKS.filter((w) => week === "all" || week === w.id).map((w) => {
+					const goals = visible.filter((g) => g.week === w.id).sort((a, b) => a.number - b.number);
+					return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
+						className: "mb-8",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "mb-3 flex items-baseline justify-between gap-3",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("h2", {
+								className: "font-mono text-xs tracking-widest text-muted uppercase",
+								children: [
+									w.label,
+									" · ",
+									w.range,
+									" 2026"
+								]
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+								type: "button",
+								className: "text-sm text-primary",
+								onClick: () => setDraft({
+									kind: "goal",
+									isNew: true,
+									goal: blankGoal(state.goals, w.id)
+								}),
+								children: "Add goal"
+							})]
+						}), goals.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+							className: "rounded-xl border border-dashed border-border px-4 py-8 text-center text-sm text-muted",
+							children: "Nothing planned for this week yet."
+						}) : goals.map((g) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(GoalCard, {
+							goal: g,
+							onEdit: () => setDraft({
+								kind: "goal",
+								isNew: false,
+								goal: structuredClone(g)
+							}),
+							onDelete: () => {
+								if (confirm("Delete this goal and its milestones?")) patch((s) => ({
+									...s,
+									goals: s.goals.filter((x) => x.id !== g.id)
+								}));
+							},
+							onAddMs: () => setDraft({
+								kind: "ms",
+								gid: g.id,
+								isNew: true,
+								ms: {
+									id: uid(),
+									title: "",
+									status: "not_started",
+									due: "",
+									notes: ""
+								}
+							}),
+							onEditMs: (m) => setDraft({
+								kind: "ms",
+								gid: g.id,
+								isNew: false,
+								ms: structuredClone(m)
+							}),
+							onStatus: (mid, next) => patch((s) => ({
+								...s,
+								goals: s.goals.map((goal) => goal.id !== g.id ? goal : {
+									...goal,
+									milestones: goal.milestones.map((m) => m.id === mid ? {
+										...m,
+										status: next
+									} : m)
+								})
+							})),
+							onDue: (mid, due) => patch((s) => ({
+								...s,
+								goals: s.goals.map((goal) => goal.id !== g.id ? goal : {
+									...goal,
+									milestones: goal.milestones.map((m) => m.id === mid ? {
+										...m,
+										due
+									} : m)
+								})
+							})),
+							onDeleteMs: (mid) => patch((s) => ({
+								...s,
+								goals: s.goals.map((goal) => goal.id !== g.id ? goal : {
+									...goal,
+									milestones: goal.milestones.filter((m) => m.id !== mid)
+								})
+							}))
+						}, g.id))]
+					}, w.id);
+				})
+			}),
+			draft && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Editor, {
+				draft,
+				onClose: () => setDraft(null),
+				onSave: (next) => {
+					if (next.kind === "goal") patch((s) => ({
+						...s,
+						goals: next.isNew ? [...s.goals, next.goal] : s.goals.map((g) => g.id === next.goal.id ? next.goal : g)
+					}));
+					else patch((s) => ({
+						...s,
+						goals: s.goals.map((g) => {
+							if (g.id !== next.gid) return g;
+							return {
+								...g,
+								milestones: next.isNew ? [...g.milestones, next.ms] : g.milestones.map((m) => m.id === next.ms.id ? next.ms : m)
+							};
+						})
+					}));
+					setDraft(null);
+				}
+			}),
+			toast && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+				className: "fixed right-4 bottom-4 rounded-lg border border-border bg-surface px-4 py-2 text-sm",
+				children: toast
+			})
+		]
+	});
+}
+function blankGoal(goals, week) {
+	return {
+		id: uid(),
+		week,
+		number: nextNumber(goals, week),
+		title: "",
+		description: "",
+		notes: "",
+		due: "",
+		milestones: []
+	};
+}
+function Stat({ label, value }) {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+		className: "min-w-20 rounded-lg border border-border bg-surface px-3 py-2",
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("dt", {
+			className: "text-xs text-muted",
+			children: label
+		}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("dd", {
+			className: "text-lg font-semibold leading-none",
+			children: value
+		})]
+	});
+}
+function IconButton({ label, onClick, children }) {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+		type: "button",
+		"aria-label": label,
+		className: "inline-flex min-h-11 items-center gap-2 rounded-lg border border-border bg-surface px-3 text-sm",
+		onClick,
+		children: [children, /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: label })]
+	});
+}
+function GoalCard({ goal, onEdit, onDelete, onAddMs, onEditMs, onStatus, onDue, onDeleteMs }) {
+	const p = progress(goal);
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", {
+		className: "mb-3 overflow-hidden rounded-xl border border-border bg-surface",
+		children: [
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				className: "flex gap-3 p-4",
+				children: [
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+						className: "mt-0.5 h-fit rounded-md bg-primary/15 px-2 py-1 font-mono text-xs text-primary",
+						children: ["G", goal.number]
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "min-w-0 flex-1",
+						children: [
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
+								className: "text-base font-semibold",
+								children: goal.title
+							}),
+							goal.description && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+								className: "mt-1 text-sm leading-relaxed whitespace-pre-wrap text-muted",
+								children: goal.description
+							}),
+							goal.notes && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+								className: "mt-2 text-sm whitespace-pre-wrap",
+								children: goal.notes
+							})
+						]
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "hidden w-28 shrink-0 text-right sm:block",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+							className: "h-1.5 overflow-hidden rounded-full bg-surface-2",
+							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+								className: "h-full bg-primary",
+								style: { width: `${p.pct}%` }
+							})
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+							className: "mt-1 text-xs text-muted",
+							children: [
+								p.done,
+								"/",
+								p.total,
+								goal.due ? ` · ${goal.due}` : ""
+							]
+						})]
+					})
+				]
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", { children: goal.milestones.map((m) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
+				className: "grid gap-2 border-t border-border px-4 py-3 sm:grid-cols-[auto_1fr_9.5rem_9rem_auto] sm:items-start",
+				children: [
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(StatusMark, { status: m.status }),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "min-w-0",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+							className: "text-sm font-medium",
+							children: m.title
+						}), m.notes && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+							className: "mt-1 text-sm leading-relaxed text-muted",
+							children: m.notes
+						})]
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("select", {
+						"aria-label": "Status",
+						className: "min-h-11 rounded-lg border border-border bg-bg px-2 text-sm",
+						value: m.status,
+						onChange: (e) => onStatus(m.id, e.target.value),
+						children: STATUSES.map((s) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
+							value: s.id,
+							children: s.label
+						}, s.id))
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+						className: "flex min-h-11 items-center gap-2 rounded-lg border border-border bg-bg px-2 text-sm",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, {
+							size: 14,
+							className: "shrink-0 text-muted"
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+							type: "date",
+							"aria-label": "Due date",
+							className: "w-full bg-transparent outline-none",
+							value: m.due,
+							onChange: (e) => onDue(m.id, e.target.value)
+						})]
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "flex gap-1",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+							type: "button",
+							className: "min-h-11 px-2 text-sm text-muted",
+							onClick: () => onEditMs(m),
+							children: "Edit"
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+							type: "button",
+							"aria-label": "Delete milestone",
+							className: "min-h-11 px-2 text-alert",
+							onClick: () => onDeleteMs(m.id),
+							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Trash2, { size: 16 })
+						})]
+					})
+				]
+			}, m.id)) }),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				className: "flex justify-between border-t border-border px-4 py-2",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+					type: "button",
+					className: "min-h-11 text-sm text-primary",
+					onClick: onAddMs,
+					children: "Add milestone"
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					className: "flex gap-3",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+						type: "button",
+						className: "min-h-11 text-sm",
+						onClick: onEdit,
+						children: "Edit goal"
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+						type: "button",
+						className: "min-h-11 text-sm text-alert",
+						onClick: onDelete,
+						children: "Delete"
+					})]
+				})]
+			})
+		]
+	});
+}
+function StatusMark({ status }) {
+	const cls = "mt-1 text-muted";
+	if (status === "done") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleCheck, {
+		size: 16,
+		className: "mt-1 text-primary"
+	});
+	if (status === "blocked") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(OctagonAlert, {
+		size: 16,
+		className: "mt-1 text-alert"
+	});
+	if (status === "in_progress") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleDashed, {
+		size: 16,
+		className: cls
+	});
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Circle, {
+		size: 16,
+		className: cls
+	});
+}
+function Editor({ draft, onClose, onSave }) {
+	const [local, setLocal] = (0, import_react.useState)(draft);
+	const goal = local.kind === "goal" ? local.goal : null;
+	const ms = local.kind === "ms" ? local.ms : null;
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+		className: "fixed inset-0 z-40 flex items-start justify-center bg-bg/70 px-4 pt-16",
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("form", {
+			className: "w-full max-w-lg rounded-xl border border-border bg-surface p-4",
+			onSubmit: (e) => {
+				e.preventDefault();
+				if (local.kind === "goal" && !local.goal.title.trim()) return;
+				if (local.kind === "ms" && !local.ms.title.trim()) return;
+				onSave(local);
+			},
+			children: [
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
+					className: "mb-3 text-base font-semibold",
+					children: local.kind === "goal" ? local.isNew ? "New goal" : "Edit goal" : local.isNew ? "New milestone" : "Edit milestone"
+				}),
+				goal && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Field, {
+						label: "Week",
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("select", {
+							className: "field",
+							value: goal.week,
+							onChange: (e) => setLocal({
+								...local,
+								kind: "goal",
+								goal: {
+									...goal,
+									week: e.target.value
+								}
+							}),
+							children: WEEKS.map((w) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("option", {
+								value: w.id,
+								children: [
+									w.label,
+									" · ",
+									w.range
+								]
+							}, w.id))
+						})
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Field, {
+						label: "Number",
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+							className: "field",
+							type: "number",
+							min: 1,
+							value: goal.number,
+							onChange: (e) => setLocal({
+								...local,
+								kind: "goal",
+								goal: {
+									...goal,
+									number: Number(e.target.value) || 1
+								}
+							})
+						})
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Field, {
+						label: "Title",
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+							className: "field",
+							value: goal.title,
+							required: true,
+							onChange: (e) => setLocal({
+								...local,
+								kind: "goal",
+								goal: {
+									...goal,
+									title: e.target.value
+								}
+							})
+						})
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Field, {
+						label: "Description",
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", {
+							className: "field min-h-24",
+							value: goal.description,
+							onChange: (e) => setLocal({
+								...local,
+								kind: "goal",
+								goal: {
+									...goal,
+									description: e.target.value
+								}
+							})
+						})
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Field, {
+						label: "Due",
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+							className: "field",
+							type: "date",
+							value: goal.due,
+							onChange: (e) => setLocal({
+								...local,
+								kind: "goal",
+								goal: {
+									...goal,
+									due: e.target.value
+								}
+							})
+						})
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Field, {
+						label: "Notes",
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", {
+							className: "field min-h-20",
+							value: goal.notes,
+							onChange: (e) => setLocal({
+								...local,
+								kind: "goal",
+								goal: {
+									...goal,
+									notes: e.target.value
+								}
+							})
+						})
+					})
+				] }),
+				ms && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Field, {
+						label: "Title",
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+							className: "field",
+							required: true,
+							value: ms.title,
+							onChange: (e) => {
+								const title = e.target.value;
+								setLocal((d) => d.kind === "ms" ? {
+									...d,
+									ms: {
+										...d.ms,
+										title
+									}
+								} : d);
+							}
+						})
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Field, {
+						label: "Status",
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("select", {
+							className: "field",
+							value: ms.status,
+							onChange: (e) => {
+								const status = e.target.value;
+								setLocal((d) => d.kind === "ms" ? {
+									...d,
+									ms: {
+										...d.ms,
+										status
+									}
+								} : d);
+							},
+							children: STATUSES.map((s) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
+								value: s.id,
+								children: s.label
+							}, s.id))
+						})
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Field, {
+						label: "Due",
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+							className: "field",
+							type: "date",
+							value: ms.due,
+							onChange: (e) => {
+								const due = e.target.value;
+								setLocal((d) => d.kind === "ms" ? {
+									...d,
+									ms: {
+										...d.ms,
+										due
+									}
+								} : d);
+							}
+						})
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Field, {
+						label: "Notes",
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", {
+							className: "field min-h-20",
+							value: ms.notes,
+							onChange: (e) => {
+								const notes = e.target.value;
+								setLocal((d) => d.kind === "ms" ? {
+									...d,
+									ms: {
+										...d.ms,
+										notes
+									}
+								} : d);
+							}
+						})
+					})
+				] }),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					className: "mt-4 flex justify-end gap-2",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+						type: "button",
+						className: "min-h-11 rounded-lg border border-border px-4 text-sm",
+						onClick: onClose,
+						children: "Cancel"
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+						type: "submit",
+						className: "min-h-11 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-ink",
+						children: "Save"
+					})]
+				})
+			]
+		})
+	});
+}
+function Field({ label, children }) {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+		className: "mb-3 block text-sm text-muted",
+		children: [label, /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+			className: "mt-1 text-fg",
+			children
+		})]
+	});
+}
+var SplitComponent = TrackerApp;
+//#endregion
+export { SplitComponent as component };
