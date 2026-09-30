@@ -87,7 +87,7 @@ var HEADERS = { TSS_SHELL: "X-TSS_SHELL" };
 * the dev styles URL for route-scoped CSS collection.
 */
 async function getStartManifest(matchedRoutes) {
-	const { tsrStartManifest } = await import("../_tanstack-start-manifest_v-CXhI2A_s.mjs");
+	const { tsrStartManifest } = await import("../_tanstack-start-manifest_v-CMY8TCmo.mjs");
 	const startManifest = tsrStartManifest();
 	let routes = startManifest.routes;
 	routes[rootRouteId];
@@ -107,25 +107,33 @@ async function getStartManifest(matchedRoutes) {
 	};
 }
 var manifest = {
+	"89f9410beec411473a46d4ce7502c215757fa6264c1eab4be755750c860bec58": {
+		functionName: "updateMyComment_createServerFn_handler",
+		importer: () => import("./shared-Sd4gz5ML.mjs")
+	},
 	"a3c280c3aea37e586efb8514a9ddc8e440e9a61f15370078a87cced767967cdc": {
 		functionName: "addComment_createServerFn_handler",
-		importer: () => import("./shared-BX3ta1vJ.mjs")
+		importer: () => import("./shared-Sd4gz5ML.mjs")
 	},
 	"a3c39b0cc66bd4484c0e8e3bdddc022a8511eaddc2d8d20ea54df7bca3f89592": {
 		functionName: "updateMilestone_createServerFn_handler",
-		importer: () => import("./shared-BX3ta1vJ.mjs")
+		importer: () => import("./shared-Sd4gz5ML.mjs")
 	},
 	"b0c7cb792e7d0700cfeee0557483816d4d19d0eafc88da92c0417ab802ed3d9e": {
 		functionName: "saveGoals_createServerFn_handler",
-		importer: () => import("./shared-BX3ta1vJ.mjs")
+		importer: () => import("./shared-Sd4gz5ML.mjs")
 	},
 	"c9457b4136f459a1fee90d8c7edafb9ecec1d1cfa590570e1111302762702dc4": {
 		functionName: "loadShared_createServerFn_handler",
-		importer: () => import("./shared-BX3ta1vJ.mjs")
+		importer: () => import("./shared-Sd4gz5ML.mjs")
 	},
 	"ec8a4decd42eafd626832a1d56d3d0dc0d3fae02619880ad9be72a686e09f11f": {
 		functionName: "saveMyAnswers_createServerFn_handler",
-		importer: () => import("./shared-BX3ta1vJ.mjs")
+		importer: () => import("./shared-Sd4gz5ML.mjs")
+	},
+	"f3632ca2be61fbb489add5a5c357e07087b66e3bd388aa214c3fa2411dff356c": {
+		functionName: "deleteMyComment_createServerFn_handler",
+		importer: () => import("./shared-Sd4gz5ML.mjs")
 	}
 };
 async function getServerFnById(id, access) {
@@ -1519,7 +1527,7 @@ var getBaseManifest = getProdBaseManifest;
 var createEarlyHintsForRequest = createEarlyHintsCollector;
 async function loadEntries() {
 	const [routerEntry, startEntry, pluginAdapters] = await Promise.all([
-		import("./router-CpHeeBsm.mjs").then((n) => n.t),
+		import("./router-rRiHx6Xf.mjs").then((n) => n.t),
 		import("./start-5Z2QO8AU.mjs"),
 		import("./empty-plugin-adapters-D9UWiqvJ.mjs")
 	]);

@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { AnswersView } from "@/components/answers-view";
 import { PeopleView } from "@/components/people-view";
-import { addComment, loadShared, saveGoals, saveMyAnswers, updateMilestone, type SharedAnswer, type SharedComment } from "@/lib/shared";
+import { addComment, deleteMyComment, loadShared, saveGoals, saveMyAnswers, updateMilestone, updateMyComment, type SharedAnswer, type SharedComment } from "@/lib/shared";
 import { matchTeam, type TeamMember } from "@/lib/team";
 import { withAnswers } from "@/lib/answers";
 import {
@@ -150,6 +150,18 @@ export function TrackerApp() {
       }
       return next;
     });
+  }
+
+  function editComment(id: string, body: string) {
+    updateMyComment({ data: { email: member.email, id, body } })
+      .then((row) => setComments((prev) => prev.map((comment) => (comment.id === id ? row : comment))))
+      .catch(() => setToast("Could not edit that comment."));
+  }
+
+  function removeComment(id: string) {
+    deleteMyComment({ data: { email: member.email, id } })
+      .then(() => setComments((prev) => prev.filter((comment) => comment.id !== id)))
+      .catch(() => setToast("Could not delete that comment."));
   }
 
   function exportJson() {
@@ -390,6 +402,13 @@ export function TrackerApp() {
                       {" "}
                       on {goal ? goal.title : "a goal"}: {comment.body}
                     </span>
+                    {comment.author === member.name && (
+                      <CommentActions
+                        onEdit={(body) => editComment(comment.id, body)}
+                        onDelete={() => removeComment(comment.id)}
+                        body={comment.body}
+                      />
+                    )}
                   </li>
                 );
               })}
@@ -490,11 +509,14 @@ export function TrackerApp() {
                     }
                     locked={memberOnly}
                     comments={comments.filter((c) => c.goal_id === g.id)}
+                    me={member.name}
                     onComment={(body) => {
                       addComment({ data: { email: who.email, goalId: g.id, body } })
                         .then((row) => setComments((prev) => [...prev, row]))
                         .catch(() => setToast("Could not add the comment."));
                     }}
+                    onEditComment={editComment}
+                    onDeleteComment={removeComment}
                   />
                 ))
               )}
@@ -599,7 +621,10 @@ function GoalCard({
   onDeleteMs,
   locked,
   comments,
+  me,
   onComment,
+  onEditComment,
+  onDeleteComment,
 }: {
   goal: Goal;
   onEdit: () => void;
@@ -611,7 +636,10 @@ function GoalCard({
   onDeleteMs: (id: string) => void;
   locked: boolean;
   comments: SharedComment[];
+  me: string;
   onComment: (body: string) => void;
+  onEditComment: (id: string, body: string) => void;
+  onDeleteComment: (id: string) => void;
 }) {
   const p = progress(goal);
   return (
@@ -705,7 +733,13 @@ function GoalCard({
         </div>
       </div>
       )}
-      <GoalComments comments={comments} onComment={onComment} />
+      <GoalComments
+        comments={comments}
+        me={me}
+        onComment={onComment}
+        onEditComment={onEditComment}
+        onDeleteComment={onDeleteComment}
+      />
     </article>
   );
 }
@@ -947,21 +981,91 @@ export function EmailGate({ onMatch }: { onMatch: (member: TeamMember) => void }
   );
 }
 
+function CommentActions({
+  body,
+  onEdit,
+  onDelete,
+}: {
+  body: string;
+  onEdit: (body: string) => void;
+  onDelete: () => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(body);
+  if (editing) {
+    return (
+      <form
+        className="mt-2 flex gap-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!draft.trim()) return;
+          onEdit(draft.trim());
+          setEditing(false);
+        }}
+      >
+        <input className="field" value={draft} onChange={(e) => setDraft(e.target.value)} />
+        <button type="submit" className="min-h-11 rounded-lg border border-border px-3 text-sm">
+          Save
+        </button>
+        <button type="button" className="min-h-11 px-2 text-sm text-muted" onClick={() => setEditing(false)}>
+          Cancel
+        </button>
+      </form>
+    );
+  }
+  return (
+    <span className="ml-2 inline-flex gap-2">
+      <button
+        type="button"
+        className="text-sm text-primary"
+        onClick={() => {
+          setDraft(body);
+          setEditing(true);
+        }}
+      >
+        Edit
+      </button>
+      <button
+        type="button"
+        className="text-sm text-alert"
+        onClick={() => {
+          if (confirm("Delete your comment?")) onDelete();
+        }}
+      >
+        Delete
+      </button>
+    </span>
+  );
+}
+
 function GoalComments({
   comments,
+  me,
   onComment,
+  onEditComment,
+  onDeleteComment,
 }: {
   comments: SharedComment[];
+  me: string;
   onComment: (body: string) => void;
+  onEditComment: (id: string, body: string) => void;
+  onDeleteComment: (id: string) => void;
 }) {
   const [text, setText] = useState("");
   return (
     <div className="space-y-2 border-t border-border px-4 py-3">
       {comments.map((comment) => (
-        <p key={comment.id} className="text-sm">
+        <div key={comment.id} className="text-sm">
           <span className="font-medium">{comment.author}.</span>{" "}
           <span className="text-muted">{comment.body}</span>
-        </p>
+          {comment.author === me && (
+            <CommentActions
+              body={comment.body}
+              onEdit={(body) => onEditComment(comment.id, body)}
+              onDelete={() => onDeleteComment(comment.id)}
+            />
+          )}
+        </div>
       ))}
       <form
         className="flex gap-2"

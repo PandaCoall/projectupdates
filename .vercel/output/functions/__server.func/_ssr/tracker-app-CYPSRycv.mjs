@@ -3,7 +3,7 @@ import { S as require_jsx_runtime, Y as require_react, y as Navigate } from "../
 import { n as TSS_SERVER_FUNCTION, r as getServerFnById, t as createServerFn } from "./ssr.mjs";
 import { n as matchTeam, t as TEAM } from "./team-C3E8MDHu.mjs";
 import { a as RotateCcw, c as Download, d as CircleCheck, f as Calendar, i as Search, l as Circle, o as Plus, r as Trash2, s as OctagonAlert, t as Upload, u as CircleDashed } from "../_libs/lucide-react.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/tracker-app-IjjfRMBp.js
+//#region node_modules/.nitro/vite/services/ssr/assets/tracker-app-CYPSRycv.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var FLOW_KINDS = [
@@ -748,6 +748,8 @@ var saveGoals = createServerFn({ method: "POST" }).validator((input) => input).h
 var updateMilestone = createServerFn({ method: "POST" }).validator((input) => input).handler(createSsrRpc("a3c39b0cc66bd4484c0e8e3bdddc022a8511eaddc2d8d20ea54df7bca3f89592"));
 var saveMyAnswers = createServerFn({ method: "POST" }).validator((input) => input).handler(createSsrRpc("ec8a4decd42eafd626832a1d56d3d0dc0d3fae02619880ad9be72a686e09f11f"));
 var addComment = createServerFn({ method: "POST" }).validator((input) => input).handler(createSsrRpc("a3c280c3aea37e586efb8514a9ddc8e440e9a61f15370078a87cced767967cdc"));
+var updateMyComment = createServerFn({ method: "POST" }).validator((input) => input).handler(createSsrRpc("89f9410beec411473a46d4ce7502c215757fa6264c1eab4be755750c860bec58"));
+var deleteMyComment = createServerFn({ method: "POST" }).validator((input) => input).handler(createSsrRpc("f3632ca2be61fbb489add5a5c357e07087b66e3bd388aa214c3fa2411dff356c"));
 var STORAGE_KEY = "hyrax-october-tracker-v3";
 var LEGACY_KEY = "hyrax-october-tracker-v2";
 var STATUSES = [
@@ -1006,6 +1008,19 @@ function TrackerApp() {
 			} }).catch(() => setToast("Could not save the board."));
 			return next;
 		});
+	}
+	function editComment(id, body) {
+		updateMyComment({ data: {
+			email: member.email,
+			id,
+			body
+		} }).then((row) => setComments((prev) => prev.map((comment) => comment.id === id ? row : comment))).catch(() => setToast("Could not edit that comment."));
+	}
+	function removeComment(id) {
+		deleteMyComment({ data: {
+			email: member.email,
+			id
+		} }).then(() => setComments((prev) => prev.filter((comment) => comment.id !== id))).catch(() => setToast("Could not delete that comment."));
 	}
 	function exportJson() {
 		const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
@@ -1278,19 +1293,27 @@ function TrackerApp() {
 							const goal = state.goals.find((item) => item.id === comment.goal_id);
 							return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
 								className: "text-sm",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-									className: "font-medium",
-									children: comment.author
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-									className: "text-muted",
-									children: [
-										" ",
-										"on ",
-										goal ? goal.title : "a goal",
-										": ",
-										comment.body
-									]
-								})]
+								children: [
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+										className: "font-medium",
+										children: comment.author
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+										className: "text-muted",
+										children: [
+											" ",
+											"on ",
+											goal ? goal.title : "a goal",
+											": ",
+											comment.body
+										]
+									}),
+									comment.author === member.name && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CommentActions, {
+										onEdit: (body) => editComment(comment.id, body),
+										onDelete: () => removeComment(comment.id),
+										body: comment.body
+									})
+								]
 							}, comment.id);
 						})
 					})]
@@ -1397,13 +1420,16 @@ function TrackerApp() {
 							})),
 							locked: memberOnly,
 							comments: comments.filter((c) => c.goal_id === g.id),
+							me: member.name,
 							onComment: (body) => {
 								addComment({ data: {
 									email: who.email,
 									goalId: g.id,
 									body
 								} }).then((row) => setComments((prev) => [...prev, row])).catch(() => setToast("Could not add the comment."));
-							}
+							},
+							onEditComment: editComment,
+							onDeleteComment: removeComment
 						}, g.id))]
 					}, w.id);
 				})]
@@ -1469,7 +1495,7 @@ function IconButton({ label, onClick, children }) {
 		children: [children, /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: label })]
 	});
 }
-function GoalCard({ goal, onEdit, onDelete, onAddMs, onEditMs, onStatus, onDue, onDeleteMs, locked, comments, onComment }) {
+function GoalCard({ goal, onEdit, onDelete, onAddMs, onEditMs, onStatus, onDue, onDeleteMs, locked, comments, me, onComment, onEditComment, onDeleteComment }) {
 	const p = progress(goal);
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", {
 		className: "mb-3 overflow-hidden rounded-xl border border-border bg-surface",
@@ -1596,7 +1622,10 @@ function GoalCard({ goal, onEdit, onDelete, onAddMs, onEditMs, onStatus, onDue, 
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(GoalComments, {
 				comments,
-				onComment
+				me,
+				onComment,
+				onEditComment,
+				onDeleteComment
 			})
 		]
 	});
@@ -1897,11 +1926,61 @@ function EmailGate({ onMatch }) {
 		})
 	});
 }
-function GoalComments({ comments, onComment }) {
+function CommentActions({ body, onEdit, onDelete }) {
+	const [editing, setEditing] = (0, import_react.useState)(false);
+	const [draft, setDraft] = (0, import_react.useState)(body);
+	if (editing) return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("form", {
+		className: "mt-2 flex gap-2",
+		onSubmit: (e) => {
+			e.preventDefault();
+			if (!draft.trim()) return;
+			onEdit(draft.trim());
+			setEditing(false);
+		},
+		children: [
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+				className: "field",
+				value: draft,
+				onChange: (e) => setDraft(e.target.value)
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+				type: "submit",
+				className: "min-h-11 rounded-lg border border-border px-3 text-sm",
+				children: "Save"
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+				type: "button",
+				className: "min-h-11 px-2 text-sm text-muted",
+				onClick: () => setEditing(false),
+				children: "Cancel"
+			})
+		]
+	});
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+		className: "ml-2 inline-flex gap-2",
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+			type: "button",
+			className: "text-sm text-primary",
+			onClick: () => {
+				setDraft(body);
+				setEditing(true);
+			},
+			children: "Edit"
+		}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+			type: "button",
+			className: "text-sm text-alert",
+			onClick: () => {
+				if (confirm("Delete your comment?")) onDelete();
+			},
+			children: "Delete"
+		})]
+	});
+}
+function GoalComments({ comments, me, onComment, onEditComment, onDeleteComment }) {
 	const [text, setText] = (0, import_react.useState)("");
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 		className: "space-y-2 border-t border-border px-4 py-3",
-		children: [comments.map((comment) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+		children: [comments.map((comment) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 			className: "text-sm",
 			children: [
 				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
@@ -1912,6 +1991,11 @@ function GoalComments({ comments, onComment }) {
 				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 					className: "text-muted",
 					children: comment.body
+				}),
+				comment.author === me && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CommentActions, {
+					body: comment.body,
+					onEdit: (body) => onEditComment(comment.id, body),
+					onDelete: () => onDeleteComment(comment.id)
 				})
 			]
 		}, comment.id)), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("form", {

@@ -243,3 +243,64 @@ export const addComment = createServerFn({ method: "POST" })
     `;
     return rows[0];
   });
+
+export const updateMyComment = createServerFn({ method: "POST" })
+  .validator((input: { email: string; id: string; body: string }) => input)
+  .handler(async ({ data }) => {
+    const member = memberOrThrow(data.email);
+    const body = data.body.trim();
+    if (!body) throw new Error("Comment is empty.");
+    if (blobToken()) {
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        const current = await readJson<{ comments: SharedComment[] }>(COMMENTS_PATH, { comments: [] });
+        const existing = current.found ? current.value.comments : ((await readLegacy())?.comments ?? []);
+        const hit = existing.find((comment) => comment.id === data.id);
+        if (!hit) throw new Error("Comment not found.");
+        if (hit.author !== member.name) throw new Error("You can only edit your own comment.");
+        const updated = { ...hit, body };
+        const result = await writeJson(
+          COMMENTS_PATH,
+          { comments: existing.map((comment) => (comment.id === data.id ? updated : comment)) },
+          attempt < 4 ? current.etag : undefined,
+        );
+        if (result === "ok") return updated;
+      }
+      throw new Error("Could not edit the comment.");
+    }
+    const sql = await getSql();
+    const rows = await sql<SharedComment>`
+      update hyrax_comments set body = ${body}
+      where id = ${data.id} and author = ${member.name}
+      returning id, goal_id, author, body, created_at::text as created_at
+    `;
+    if (!rows[0]) throw new Error("You can only edit your own comment.");
+    return rows[0];
+  });
+
+export const deleteMyComment = createServerFn({ method: "POST" })
+  .validator((input: { email: string; id: string }) => input)
+  .handler(async ({ data }) => {
+    const member = memberOrThrow(data.email);
+    if (blobToken()) {
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        const current = await readJson<{ comments: SharedComment[] }>(COMMENTS_PATH, { comments: [] });
+        const existing = current.found ? current.value.comments : ((await readLegacy())?.comments ?? []);
+        const hit = existing.find((comment) => comment.id === data.id);
+        if (!hit) throw new Error("Comment not found.");
+        if (hit.author !== member.name) throw new Error("You can only delete your own comment.");
+        const result = await writeJson(
+          COMMENTS_PATH,
+          { comments: existing.filter((comment) => comment.id !== data.id) },
+          attempt < 4 ? current.etag : undefined,
+        );
+        if (result === "ok") return { ok: true as const };
+      }
+      throw new Error("Could not delete the comment.");
+    }
+    const sql = await getSql();
+    const rows = await sql<{ id: string }>`
+      delete from hyrax_comments where id = ${data.id} and author = ${member.name} returning id
+    `;
+    if (!rows[0]) throw new Error("You can only delete your own comment.");
+    return { ok: true as const };
+  });

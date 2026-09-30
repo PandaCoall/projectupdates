@@ -1,6 +1,6 @@
 import { n as TSS_SERVER_FUNCTION, t as createServerFn } from "./ssr.mjs";
 import { n as matchTeam } from "./team-C3E8MDHu.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/shared-BX3ta1vJ.js
+//#region node_modules/.nitro/vite/services/ssr/assets/shared-Sd4gz5ML.js
 var createServerRpc = (serverFnMeta, splitImportFn) => {
 	const url = "/_serverFn/" + serverFnMeta.id;
 	return Object.assign(splitImportFn, {
@@ -421,5 +421,60 @@ var addComment = createServerFn({ method: "POST" }).validator((input) => input).
       returning id, goal_id, author, body, created_at::text as created_at
     `)[0];
 });
+var updateMyComment_createServerFn_handler = createServerRpc({
+	id: "89f9410beec411473a46d4ce7502c215757fa6264c1eab4be755750c860bec58",
+	name: "updateMyComment",
+	filename: "src/lib/shared.ts"
+}, (opts) => updateMyComment.__executeServer(opts));
+var updateMyComment = createServerFn({ method: "POST" }).validator((input) => input).handler(updateMyComment_createServerFn_handler, async ({ data }) => {
+	const member = memberOrThrow(data.email);
+	const body = data.body.trim();
+	if (!body) throw new Error("Comment is empty.");
+	if (blobToken()) {
+		for (let attempt = 0; attempt < 5; attempt += 1) {
+			const current = await readJson(COMMENTS_PATH, { comments: [] });
+			const existing = current.found ? current.value.comments : (await readLegacy())?.comments ?? [];
+			const hit = existing.find((comment) => comment.id === data.id);
+			if (!hit) throw new Error("Comment not found.");
+			if (hit.author !== member.name) throw new Error("You can only edit your own comment.");
+			const updated = {
+				...hit,
+				body
+			};
+			if (await writeJson(COMMENTS_PATH, { comments: existing.map((comment) => comment.id === data.id ? updated : comment) }, attempt < 4 ? current.etag : void 0) === "ok") return updated;
+		}
+		throw new Error("Could not edit the comment.");
+	}
+	const rows = await (await getSql())`
+      update hyrax_comments set body = ${body}
+      where id = ${data.id} and author = ${member.name}
+      returning id, goal_id, author, body, created_at::text as created_at
+    `;
+	if (!rows[0]) throw new Error("You can only edit your own comment.");
+	return rows[0];
+});
+var deleteMyComment_createServerFn_handler = createServerRpc({
+	id: "f3632ca2be61fbb489add5a5c357e07087b66e3bd388aa214c3fa2411dff356c",
+	name: "deleteMyComment",
+	filename: "src/lib/shared.ts"
+}, (opts) => deleteMyComment.__executeServer(opts));
+var deleteMyComment = createServerFn({ method: "POST" }).validator((input) => input).handler(deleteMyComment_createServerFn_handler, async ({ data }) => {
+	const member = memberOrThrow(data.email);
+	if (blobToken()) {
+		for (let attempt = 0; attempt < 5; attempt += 1) {
+			const current = await readJson(COMMENTS_PATH, { comments: [] });
+			const existing = current.found ? current.value.comments : (await readLegacy())?.comments ?? [];
+			const hit = existing.find((comment) => comment.id === data.id);
+			if (!hit) throw new Error("Comment not found.");
+			if (hit.author !== member.name) throw new Error("You can only delete your own comment.");
+			if (await writeJson(COMMENTS_PATH, { comments: existing.filter((comment) => comment.id !== data.id) }, attempt < 4 ? current.etag : void 0) === "ok") return { ok: true };
+		}
+		throw new Error("Could not delete the comment.");
+	}
+	if (!(await (await getSql())`
+      delete from hyrax_comments where id = ${data.id} and author = ${member.name} returning id
+    `)[0]) throw new Error("You can only delete your own comment.");
+	return { ok: true };
+});
 //#endregion
-export { addComment_createServerFn_handler, loadShared_createServerFn_handler, saveGoals_createServerFn_handler, saveMyAnswers_createServerFn_handler, updateMilestone_createServerFn_handler };
+export { addComment_createServerFn_handler, deleteMyComment_createServerFn_handler, loadShared_createServerFn_handler, saveGoals_createServerFn_handler, saveMyAnswers_createServerFn_handler, updateMilestone_createServerFn_handler, updateMyComment_createServerFn_handler };
