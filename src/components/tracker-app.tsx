@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { Navigate } from "@tanstack/react-router";
 import {
   Calendar,
   Circle,
@@ -123,10 +124,7 @@ export function TrackerApp() {
 
   const memberOnly = who?.role === "member";
 
-  if (!who) return <EmailGate onMatch={(member) => {
-    sessionStorage.setItem(WHO_KEY, member.email);
-    setWho(member);
-  }} />;
+  if (!who) return <Navigate to="/enter" />;
 
   const q = query.trim().toLowerCase();
   const visible = state.goals.filter((g) => {
@@ -825,7 +823,7 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-function EmailGate({ onMatch }: { onMatch: (member: TeamMember) => void }) {
+export function EmailGate({ onMatch }: { onMatch: (member: TeamMember) => void }) {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   return (
