@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { AnswersView } from "@/components/answers-view";
 import { PeopleView } from "@/components/people-view";
+import { addComment, loadShared, saveGoals, saveMyAnswers, type SharedComment } from "@/lib/shared";
+import { matchTeam, type TeamMember } from "@/lib/team";
 import { withAnswers } from "@/lib/answers";
 import {
   STATUSES,
@@ -38,6 +40,8 @@ function uid() {
   return crypto.randomUUID();
 }
 
+const WHO_KEY = "hyrax-team-email";
+
 export function TrackerApp() {
   const [state, setState] = useState<TrackerState | null>(null);
   const [week, setWeek] = useState<"all" | WeekId>("all");
@@ -46,9 +50,17 @@ export function TrackerApp() {
   const [draft, setDraft] = useState<Draft | null>(null);
   const [view, setView] = useState<"board" | "answers" | "people">("board");
   const [toast, setToast] = useState("");
+  const [who, setWho] = useState<TeamMember | null>(null);
+  const [gateReady, setGateReady] = useState(false);
+  const [sharedReady, setSharedReady] = useState(false);
+  const [comments, setComments] = useState<SharedComment[]>([]);
+  const [answerAuthors, setAnswerAuthors] = useState<string[]>([]);
 
   useEffect(() => {
     setState(loadState());
+    const saved = sessionStorage.getItem(WHO_KEY);
+    setWho(saved ? matchTeam(saved) : null);
+    setGateReady(true);
   }, []);
 
   useEffect(() => {
@@ -61,6 +73,38 @@ export function TrackerApp() {
     return () => clearTimeout(t);
   }, [toast]);
 
+  useEffect(() => {
+    if (!who) return;
+    let cancel = false;
+    loadShared({ data: { email: who.email } })
+      .then((snap) => {
+        if (cancel) return;
+        setComments(snap.comments);
+        setAnswerAuthors(snap.answers.map((row) => row.author));
+        setState((prev) => {
+          if (!prev) return prev;
+          const mine = snap.answers.find((row) => row.author === who.name);
+          return {
+            ...prev,
+            goals: snap.goals.length > 0 ? snap.goals : prev.goals,
+            answers: who.role === "member" && mine ? mine.body : prev.answers,
+          };
+        });
+        setSharedReady(true);
+      })
+      .catch(() => setToast("Could not open the shared tracker."));
+    return () => {
+      cancel = true;
+    };
+  }, [who]);
+
+  useEffect(() => {
+    if (!sharedReady || who?.role !== "owner" || !state) return;
+    saveGoals({ data: { email: who.email, goals: state.goals } }).catch(() =>
+      setToast("Could not save the board."),
+    );
+  }, [state?.goals, sharedReady, who]);
+
   const counts = useMemo(() => {
     const ms = state?.goals.flatMap((g) => g.milestones) ?? [];
     return {
@@ -71,11 +115,18 @@ export function TrackerApp() {
     };
   }, [state]);
 
-  if (!state) {
+  if (!gateReady || !state) {
     return (
       <main className="mx-auto max-w-5xl px-4 py-10 text-muted">Loading tracker…</main>
     );
   }
+
+  const memberOnly = who?.role === "member";
+
+  if (!who) return <EmailGate onMatch={(member) => {
+    sessionStorage.setItem(WHO_KEY, member.email);
+    setWho(member);
+  }} />;
 
   const q = query.trim().toLowerCase();
   const visible = state.goals.filter((g) => {
@@ -121,11 +172,18 @@ export function TrackerApp() {
             <p className="font-mono text-xs tracking-wide text-primary">HYRAX</p>
             <h1 className="text-lg font-semibold leading-tight">October tracker</h1>
             <p className="text-sm text-muted">
-              {view === "board"
-                ? "Goals, milestones, status, due date, notes"
-                : view === "answers"
-                  ? "SOW, flowchart, requirements, generation layer"
-                  : "Private team list. No Google account."}
+              {who.name} · {who.role}.{" "}
+              <button
+                type="button"
+                className="underline"
+                onClick={() => {
+                  sessionStorage.removeItem(WHO_KEY);
+                  setSharedReady(false);
+                  setWho(null);
+                }}
+              >
+                Use another email
+              </button>
             </p>
           </div>
           <div className="flex rounded-lg border border-border p-1">
@@ -158,6 +216,7 @@ export function TrackerApp() {
             <Stat label="Blocked" value={counts.blocked} />
           </dl>
           <div className="flex flex-wrap gap-2">
+            {!memberOnly && (
             <button
               type="button"
               className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-semibold text-primary-ink"
@@ -171,9 +230,11 @@ export function TrackerApp() {
             >
               <Plus size={16} /> Goal
             </button>
+            )}
             <IconButton label="Export" onClick={exportJson}>
               <Download size={16} />
             </IconButton>
+            {!memberOnly && (
             <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border border-border bg-surface px-3 text-sm">
               <Upload size={16} /> Import
               <input
@@ -187,6 +248,8 @@ export function TrackerApp() {
                 }}
               />
             </label>
+            )}
+            {!memberOnly && (
             <IconButton
               label="Reset"
               onClick={() => {
@@ -198,6 +261,7 @@ export function TrackerApp() {
             >
               <RotateCcw size={16} />
             </IconButton>
+            )}
           </div>
         </div>
         <div className="mx-auto flex max-w-5xl flex-wrap gap-2 px-4 pb-4">
@@ -240,10 +304,18 @@ export function TrackerApp() {
       {view === "answers" ? (
         <AnswersView
           answers={state.answers}
-          onChange={(answers) => setState({ ...state, answers })}
+          onChange={(answers) => {
+            setState({ ...state, answers });
+            saveMyAnswers({ data: { email: who.email, answers } })
+              .then(() => {
+                setAnswerAuthors((prev) => (prev.includes(who.name) ? prev : [...prev, who.name]));
+                setToast(`Saved under ${who.name}`);
+              })
+              .catch(() => setToast("Could not save answers."));
+          }}
         />
       ) : view === "people" ? (
-        <PeopleView people={state.people} onChange={(people) => setState({ ...state, people })} />
+        <PeopleView />
       ) : (
       <main className="mx-auto max-w-5xl px-4 py-6">
         {WEEKS.filter((w) => week === "all" || week === w.id).map((w) => {
@@ -256,6 +328,7 @@ export function TrackerApp() {
                 <h2 className="font-mono text-xs tracking-widest text-muted uppercase">
                   {w.label} · {w.range} 2026
                 </h2>
+                {!memberOnly && (
                 <button
                   type="button"
                   className="text-sm text-primary"
@@ -265,6 +338,7 @@ export function TrackerApp() {
                 >
                   Add goal
                 </button>
+                )}
               </div>
               {goals.length === 0 ? (
                 <p className="rounded-xl border border-dashed border-border px-4 py-8 text-center text-sm text-muted">
@@ -332,6 +406,13 @@ export function TrackerApp() {
                         ),
                       }))
                     }
+                    locked={memberOnly}
+                    comments={comments.filter((c) => c.goal_id === g.id)}
+                    onComment={(body) => {
+                      addComment({ data: { email: who.email, goalId: g.id, body } })
+                        .then((row) => setComments((prev) => [...prev, row]))
+                        .catch(() => setToast("Could not add the comment."));
+                    }}
                   />
                 ))
               )}
@@ -434,6 +515,9 @@ function GoalCard({
   onStatus,
   onDue,
   onDeleteMs,
+  locked,
+  comments,
+  onComment,
 }: {
   goal: Goal;
   onEdit: () => void;
@@ -443,6 +527,9 @@ function GoalCard({
   onStatus: (id: string, status: Status) => void;
   onDue: (id: string, due: string) => void;
   onDeleteMs: (id: string) => void;
+  locked: boolean;
+  comments: SharedComment[];
+  onComment: (body: string) => void;
 }) {
   const p = progress(goal);
   return (
@@ -483,6 +570,7 @@ function GoalCard({
             </div>
             <select
               aria-label="Status"
+              disabled={locked}
               className="min-h-11 rounded-lg border border-border bg-bg px-2 text-sm"
               value={m.status}
               onChange={(e) => onStatus(m.id, e.target.value as Status)}
@@ -498,11 +586,13 @@ function GoalCard({
               <input
                 type="date"
                 aria-label="Due date"
+                disabled={locked}
                 className="w-full bg-transparent outline-none"
                 value={m.due}
                 onChange={(e) => onDue(m.id, e.target.value)}
               />
             </label>
+            {!locked && (
             <div className="flex gap-1">
               <button type="button" className="min-h-11 px-2 text-sm text-muted" onClick={() => onEditMs(m)}>
                 Edit
@@ -516,9 +606,11 @@ function GoalCard({
                 <Trash2 size={16} />
               </button>
             </div>
+            )}
           </li>
         ))}
       </ul>
+      {!locked && (
       <div className="flex justify-between border-t border-border px-4 py-2">
         <button type="button" className="min-h-11 text-sm text-primary" onClick={onAddMs}>
           Add milestone
@@ -532,6 +624,8 @@ function GoalCard({
           </button>
         </div>
       </div>
+      )}
+      <GoalComments comments={comments} onComment={onComment} />
     </article>
   );
 }
@@ -728,5 +822,86 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
       {label}
       <div className="mt-1 text-fg">{children}</div>
     </label>
+  );
+}
+
+function EmailGate({ onMatch }: { onMatch: (member: TeamMember) => void }) {
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
+  return (
+    <main className="grid min-h-screen place-items-center bg-bg px-4 text-fg">
+      <form
+        className="w-full max-w-md space-y-3 rounded-xl border border-border bg-surface p-5"
+        onSubmit={(e) => {
+          e.preventDefault();
+          const member = matchTeam(email);
+          if (!member) {
+            setError("That email is not on the team.");
+            return;
+          }
+          onMatch(member);
+        }}
+      >
+        <p className="font-mono text-xs tracking-widest text-primary uppercase">Hyrax</p>
+        <h1 className="text-xl font-semibold">Team link</h1>
+        <p className="text-sm leading-relaxed text-muted">
+          Enter the email already on the team list. No Google account. If it matches, you can comment
+          and add answers under your name.
+        </p>
+        <input
+          className="field"
+          type="text"
+          inputMode="email"
+          required
+          autoComplete="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        {error && <p className="text-sm text-alert">{error}</p>}
+        <button type="submit" className="min-h-11 w-full rounded-lg bg-primary text-sm font-semibold text-primary-ink">
+          Continue
+        </button>
+      </form>
+    </main>
+  );
+}
+
+function GoalComments({
+  comments,
+  onComment,
+}: {
+  comments: SharedComment[];
+  onComment: (body: string) => void;
+}) {
+  const [text, setText] = useState("");
+  return (
+    <div className="space-y-2 border-t border-border px-4 py-3">
+      {comments.map((comment) => (
+        <p key={comment.id} className="text-sm">
+          <span className="font-medium">{comment.author}.</span>{" "}
+          <span className="text-muted">{comment.body}</span>
+        </p>
+      ))}
+      <form
+        className="flex gap-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!text.trim()) return;
+          onComment(text.trim());
+          setText("");
+        }}
+      >
+        <input
+          className="field"
+          value={text}
+          placeholder="Comment under your name"
+          onChange={(e) => setText(e.target.value)}
+        />
+        <button type="submit" className="min-h-11 rounded-lg border border-border px-3 text-sm">
+          Comment
+        </button>
+      </form>
+    </div>
   );
 }
