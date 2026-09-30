@@ -1,0 +1,13 @@
+import { S as require_jsx_runtime, b as useNavigate } from "../_libs/@tanstack/react-router+[...].mjs";
+import { t as EmailGate } from "./tracker-app-i8FPJeLE.mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/enter-OGefuuGJ.js
+var import_jsx_runtime = require_jsx_runtime();
+function EnterPage() {
+	const navigate = useNavigate();
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(EmailGate, { onMatch: (member) => {
+		sessionStorage.setItem("hyrax-team-email", member.email);
+		navigate({ to: "/" });
+	} });
+}
+//#endregion
+export { EnterPage as component };

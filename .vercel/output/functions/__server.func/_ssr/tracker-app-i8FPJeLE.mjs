@@ -1,7 +1,9 @@
-import { i as __toESM } from "../_runtime.mjs";
-import { K as require_react, b as require_jsx_runtime } from "../_libs/@tanstack/react-router+[...].mjs";
+import { o as __toESM } from "../_runtime.mjs";
+import { S as require_jsx_runtime, Y as require_react, y as Navigate } from "../_libs/@tanstack/react-router+[...].mjs";
+import { n as TSS_SERVER_FUNCTION, r as getServerFnById, t as createServerFn } from "./ssr.mjs";
+import { n as matchTeam, t as TEAM } from "./team-BwqprQbA.mjs";
 import { a as RotateCcw, c as Download, d as CircleCheck, f as Calendar, i as Search, l as Circle, o as Plus, r as Trash2, s as OctagonAlert, t as Upload, u as CircleDashed } from "../_libs/lucide-react.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/routes-v25aTA5Z.js
+//#region node_modules/.nitro/vite/services/ssr/assets/tracker-app-i8FPJeLE.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var FLOW_KINDS = [
@@ -61,6 +63,24 @@ function item(text = "") {
 		text
 	};
 }
+function deliverable(name, evidence, owner) {
+	return {
+		id: nid$1(),
+		name,
+		evidence,
+		owner
+	};
+}
+function seedDeliverables() {
+	return [
+		deliverable("Working pilot path", "A complete job runs in the deployed environment and produces the agreed editor handoff", "Mary with engineering support"),
+		deliverable("Recipe and provider decision", "Versioned inputs, results, failures, cost and editor assessment from the bounded comparison", "Mary and senior engineer"),
+		deliverable("Retained asset library", "Approved segments can be found and used; unapproved or restricted ranges cannot be rendered", "Mary; editor owns usability approval"),
+		deliverable("Review and approval path", "A correction creates a new version; acceptance and release decisions remain distinct", "Editors and release owner"),
+		deliverable("Specification and operating guide", "Data contracts, deployment, recovery, access and known limitations documented", "Mary and senior engineer"),
+		deliverable("Measurement report", "Matched baseline and pilot timings, accepted outcomes, cost and failure analysis", "Mary and lead editor")
+	];
+}
 var emptyGen = () => ({
 	floyo: "",
 	comfy: "",
@@ -72,7 +92,7 @@ function emptyAnswers() {
 			building: "",
 			inScope: [item()],
 			outOfScope: [item()],
-			deliverables: [item()],
+			deliverables: seedDeliverables(),
 			path: [
 				item("UGC / presenter"),
 				item("B-roll"),
@@ -126,9 +146,23 @@ function emptyAnswers() {
 	};
 }
 function withAnswers(state) {
+	const answers = state.answers ?? emptyAnswers();
+	const rows = answers.sow.deliverables;
+	const deliverables = rows.every((row) => typeof row.name === "string") ? rows : rows.some((row) => row.text) ? rows.map((row) => ({
+		id: row.id,
+		name: row.text ?? "",
+		evidence: row.evidence ?? "",
+		owner: row.owner ?? ""
+	})) : seedDeliverables();
 	return {
 		...state,
-		answers: state.answers ?? emptyAnswers()
+		answers: {
+			...answers,
+			sow: {
+				...answers.sow,
+				deliverables
+			}
+		}
 	};
 }
 function nid() {
@@ -177,11 +211,9 @@ function AnswersView({ answers, onChange }) {
 						onChange: (outOfScope) => setSow({ outOfScope }),
 						placeholder: "One out-of-scope item"
 					}),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ListEditor, {
-						label: "Deliverables",
-						items: sow.deliverables,
-						onChange: (deliverables) => setSow({ deliverables }),
-						placeholder: "One deliverable"
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DeliverableTable, {
+						rows: sow.deliverables,
+						onChange: (deliverables) => setSow({ deliverables })
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ListEditor, {
 						label: "Basic path that must exist in the first cut",
@@ -537,6 +569,96 @@ function Label({ text, children }) {
 		})]
 	});
 }
+function DeliverableTable({ rows, onChange }) {
+	function patch(id, next) {
+		onChange(rows.map((row) => row.id === id ? {
+			...row,
+			...next
+		} : row));
+	}
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+		/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+			className: "mb-2 text-sm font-semibold text-fg",
+			children: "Deliverables and owners"
+		}),
+		/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+			className: "overflow-x-auto rounded-xl border border-border",
+			children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("table", {
+				className: "w-full min-w-[40rem] border-collapse text-sm",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("thead", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("tr", {
+					className: "bg-surface-2 text-left",
+					children: [
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
+							className: "w-[22%] p-3 font-semibold",
+							children: "Deliverable"
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
+							className: "p-3 font-semibold",
+							children: "Acceptance evidence"
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
+							className: "w-[24%] p-3 font-semibold",
+							children: "Accountable owner"
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "w-12 p-3" })
+					]
+				}) }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("tbody", { children: rows.map((row, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("tr", {
+					className: index % 2 === 0 ? "border-t border-border bg-surface" : "border-t border-border bg-bg",
+					children: [
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", {
+							className: "p-2 align-top",
+							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", {
+								className: "field min-h-20",
+								value: row.name,
+								"aria-label": "Deliverable",
+								onChange: (e) => patch(row.id, { name: e.target.value })
+							})
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", {
+							className: "p-2 align-top",
+							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", {
+								className: "field min-h-20",
+								value: row.evidence,
+								"aria-label": "Acceptance evidence",
+								onChange: (e) => patch(row.id, { evidence: e.target.value })
+							})
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", {
+							className: "p-2 align-top",
+							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", {
+								className: "field min-h-20",
+								value: row.owner,
+								"aria-label": "Accountable owner",
+								onChange: (e) => patch(row.id, { owner: e.target.value })
+							})
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", {
+							className: "p-2 align-top",
+							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+								type: "button",
+								"aria-label": "Remove deliverable",
+								className: "min-h-11 px-2 text-alert",
+								onClick: () => onChange(rows.filter((item) => item.id !== row.id)),
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Trash2, { size: 16 })
+							})
+						})
+					]
+				}, row.id)) })]
+			})
+		}),
+		/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+			type: "button",
+			className: "mt-2 inline-flex min-h-11 items-center gap-1 text-sm text-primary",
+			onClick: () => onChange([...rows, {
+				id: nid(),
+				name: "",
+				evidence: "",
+				owner: ""
+			}]),
+			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { size: 14 }), " Deliverable"]
+		})
+	] });
+}
 function ListEditor({ label, items, onChange, placeholder }) {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
 		/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
@@ -575,6 +697,56 @@ function ListEditor({ label, items, onChange, placeholder }) {
 		})
 	] });
 }
+function PeopleView() {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("main", {
+		className: "mx-auto max-w-3xl space-y-4 px-4 py-6",
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", { children: [
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+				className: "font-mono text-xs tracking-widest text-primary uppercase",
+				children: "Team"
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
+				className: "text-xl font-semibold",
+				children: "Fixed team"
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+				className: "mt-2 text-sm leading-relaxed text-muted",
+				children: "These emails are set in the app. Opening the link asks for an email. A match can comment and add answers under that name. A member cannot change the board. This is not a public sign-up and it does not use Google."
+			})
+		] }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
+			className: "divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface",
+			children: TEAM.map((member) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
+				className: "flex items-center justify-between gap-3 px-4 py-3",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					className: "font-medium",
+					children: member.name
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					className: "text-sm text-muted",
+					children: member.email
+				})] }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+					className: "text-xs tracking-wide text-primary uppercase",
+					children: member.role
+				})]
+			}, member.email))
+		})]
+	});
+}
+var createSsrRpc = (functionId) => {
+	const url = "/_serverFn/" + functionId;
+	const serverFnMeta = { id: functionId };
+	const fn = async (...args) => {
+		return (await getServerFnById(functionId, { origin: "server" }))(...args);
+	};
+	return Object.assign(fn, {
+		url,
+		serverFnMeta,
+		[TSS_SERVER_FUNCTION]: true
+	});
+};
+var loadShared = createServerFn({ method: "POST" }).validator((input) => input).handler(createSsrRpc("c9457b4136f459a1fee90d8c7edafb9ecec1d1cfa590570e1111302762702dc4"));
+var saveGoals = createServerFn({ method: "POST" }).validator((input) => input).handler(createSsrRpc("b0c7cb792e7d0700cfeee0557483816d4d19d0eafc88da92c0417ab802ed3d9e"));
+var saveMyAnswers = createServerFn({ method: "POST" }).validator((input) => input).handler(createSsrRpc("ec8a4decd42eafd626832a1d56d3d0dc0d3fae02619880ad9be72a686e09f11f"));
+var addComment = createServerFn({ method: "POST" }).validator((input) => input).handler(createSsrRpc("a3c280c3aea37e586efb8514a9ddc8e440e9a61f15370078a87cced767967cdc"));
 var STORAGE_KEY = "hyrax-october-tracker-v3";
 var LEGACY_KEY = "hyrax-october-tracker-v2";
 var STATUSES = [
@@ -634,6 +806,7 @@ function seedData() {
 		project: "Hyrax AI Video Production Pilot",
 		briefDate: "2026-09-28",
 		answers: emptyAnswers(),
+		people: [],
 		goals: [
 			{
 				id: id(),
@@ -711,7 +884,13 @@ function seedData() {
 function loadState() {
 	try {
 		const raw = localStorage.getItem("hyrax-october-tracker-v3") ?? localStorage.getItem(LEGACY_KEY);
-		if (raw) return withAnswers(JSON.parse(raw));
+		if (raw) {
+			const parsed = withAnswers(JSON.parse(raw));
+			return {
+				...parsed,
+				people: parsed.people ?? []
+			};
+		}
 	} catch {}
 	return seedData();
 }
@@ -734,6 +913,7 @@ function progress(goal) {
 function uid() {
 	return crypto.randomUUID();
 }
+var WHO_KEY = "hyrax-team-email";
 function TrackerApp() {
 	const [state, setState] = (0, import_react.useState)(null);
 	const [week, setWeek] = (0, import_react.useState)("all");
@@ -742,8 +922,16 @@ function TrackerApp() {
 	const [draft, setDraft] = (0, import_react.useState)(null);
 	const [view, setView] = (0, import_react.useState)("board");
 	const [toast, setToast] = (0, import_react.useState)("");
+	const [who, setWho] = (0, import_react.useState)(null);
+	const [gateReady, setGateReady] = (0, import_react.useState)(false);
+	const [sharedReady, setSharedReady] = (0, import_react.useState)(false);
+	const [comments, setComments] = (0, import_react.useState)([]);
+	const [answerAuthors, setAnswerAuthors] = (0, import_react.useState)([]);
 	(0, import_react.useEffect)(() => {
 		setState(loadState());
+		const saved = sessionStorage.getItem(WHO_KEY);
+		setWho(saved ? matchTeam(saved) : null);
+		setGateReady(true);
 	}, []);
 	(0, import_react.useEffect)(() => {
 		if (state) saveState(state);
@@ -753,6 +941,39 @@ function TrackerApp() {
 		const t = setTimeout(() => setToast(""), 1800);
 		return () => clearTimeout(t);
 	}, [toast]);
+	(0, import_react.useEffect)(() => {
+		if (!who) return;
+		let cancel = false;
+		loadShared({ data: { email: who.email } }).then((snap) => {
+			if (cancel) return;
+			setComments(snap.comments);
+			setAnswerAuthors(snap.answers.map((row) => row.author));
+			setState((prev) => {
+				if (!prev) return prev;
+				const mine = snap.answers.find((row) => row.author === who.name);
+				return {
+					...prev,
+					goals: snap.goals.length > 0 ? snap.goals : prev.goals,
+					answers: who.role === "member" && mine ? mine.body : prev.answers
+				};
+			});
+			setSharedReady(true);
+		}).catch(() => setToast("Could not open the shared tracker."));
+		return () => {
+			cancel = true;
+		};
+	}, [who]);
+	(0, import_react.useEffect)(() => {
+		if (!sharedReady || who?.role !== "owner" || !state) return;
+		saveGoals({ data: {
+			email: who.email,
+			goals: state.goals
+		} }).catch(() => setToast("Could not save the board."));
+	}, [
+		state?.goals,
+		sharedReady,
+		who
+	]);
 	const counts = (0, import_react.useMemo)(() => {
 		const ms = state?.goals.flatMap((g) => g.milestones) ?? [];
 		return {
@@ -762,10 +983,12 @@ function TrackerApp() {
 			blocked: ms.filter((m) => m.status === "blocked").length
 		};
 	}, [state]);
-	if (!state) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("main", {
+	if (!gateReady || !state) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("main", {
 		className: "mx-auto max-w-5xl px-4 py-10 text-muted",
 		children: "Loading tracker…"
 	});
+	const memberOnly = who?.role === "member";
+	if (!who) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Navigate, { to: "/enter" });
 	const q = query.trim().toLowerCase();
 	const visible = state.goals.filter((g) => {
 		if (week !== "all" && g.week !== week) return false;
@@ -817,25 +1040,50 @@ function TrackerApp() {
 									className: "text-lg font-semibold leading-tight",
 									children: "October tracker"
 								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
 									className: "text-sm text-muted",
-									children: view === "board" ? "Goals, milestones, status, due date, notes" : "SOW, flowchart, requirements, generation layer"
+									children: [
+										who.name,
+										" · ",
+										who.role,
+										".",
+										" ",
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+											type: "button",
+											className: "underline",
+											onClick: () => {
+												sessionStorage.removeItem(WHO_KEY);
+												setSharedReady(false);
+												setWho(null);
+											},
+											children: "Use another email"
+										})
+									]
 								})
 							]
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 							className: "flex rounded-lg border border-border p-1",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-								type: "button",
-								className: `min-h-11 rounded-md px-3 text-sm ${view === "board" ? "bg-primary font-semibold text-primary-ink" : ""}`,
-								onClick: () => setView("board"),
-								children: "Board"
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-								type: "button",
-								className: `min-h-11 rounded-md px-3 text-sm ${view === "answers" ? "bg-primary font-semibold text-primary-ink" : ""}`,
-								onClick: () => setView("answers"),
-								children: "Answers"
-							})]
+							children: [
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+									type: "button",
+									className: `min-h-11 rounded-md px-3 text-sm ${view === "board" ? "bg-primary font-semibold text-primary-ink" : ""}`,
+									onClick: () => setView("board"),
+									children: "Board"
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+									type: "button",
+									className: `min-h-11 rounded-md px-3 text-sm ${view === "answers" ? "bg-primary font-semibold text-primary-ink" : ""}`,
+									onClick: () => setView("answers"),
+									children: "Answers"
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+									type: "button",
+									className: `min-h-11 rounded-md px-3 text-sm ${view === "people" ? "bg-primary font-semibold text-primary-ink" : ""}`,
+									onClick: () => setView("people"),
+									children: "Team"
+								})
+							]
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("dl", {
 							className: "flex flex-1 flex-wrap gap-2",
@@ -861,7 +1109,7 @@ function TrackerApp() {
 						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 							className: "flex flex-wrap gap-2",
 							children: [
-								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+								!memberOnly && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 									type: "button",
 									className: "inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-semibold text-primary-ink",
 									onClick: () => setDraft({
@@ -876,7 +1124,7 @@ function TrackerApp() {
 									onClick: exportJson,
 									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Download, { size: 16 })
 								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+								!memberOnly && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
 									className: "inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border border-border bg-surface px-3 text-sm",
 									children: [
 										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Upload, { size: 16 }),
@@ -893,7 +1141,7 @@ function TrackerApp() {
 										})
 									]
 								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(IconButton, {
+								!memberOnly && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(IconButton, {
 									label: "Reset",
 									onClick: () => {
 										if (confirm("Replace this board with the original Week 1 seed?")) {
@@ -950,11 +1198,20 @@ function TrackerApp() {
 			}),
 			view === "answers" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(AnswersView, {
 				answers: state.answers,
-				onChange: (answers) => setState({
-					...state,
-					answers
-				})
-			}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("main", {
+				onChange: (answers) => {
+					setState({
+						...state,
+						answers
+					});
+					saveMyAnswers({ data: {
+						email: who.email,
+						answers
+					} }).then(() => {
+						setAnswerAuthors((prev) => prev.includes(who.name) ? prev : [...prev, who.name]);
+						setToast(`Saved under ${who.name}`);
+					}).catch(() => setToast("Could not save answers."));
+				}
+			}) : view === "people" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PeopleView, {}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("main", {
 				className: "mx-auto max-w-5xl px-4 py-6",
 				children: WEEKS.filter((w) => week === "all" || week === w.id).map((w) => {
 					const goals = visible.filter((g) => g.week === w.id).sort((a, b) => a.number - b.number);
@@ -970,7 +1227,7 @@ function TrackerApp() {
 									w.range,
 									" 2026"
 								]
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+							}), !memberOnly && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 								type: "button",
 								className: "text-sm text-primary",
 								onClick: () => setDraft({
@@ -1040,7 +1297,16 @@ function TrackerApp() {
 									...goal,
 									milestones: goal.milestones.filter((m) => m.id !== mid)
 								})
-							}))
+							})),
+							locked: memberOnly,
+							comments: comments.filter((c) => c.goal_id === g.id),
+							onComment: (body) => {
+								addComment({ data: {
+									email: who.email,
+									goalId: g.id,
+									body
+								} }).then((row) => setComments((prev) => [...prev, row])).catch(() => setToast("Could not add the comment."));
+							}
 						}, g.id))]
 					}, w.id);
 				})
@@ -1106,7 +1372,7 @@ function IconButton({ label, onClick, children }) {
 		children: [children, /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: label })]
 	});
 }
-function GoalCard({ goal, onEdit, onDelete, onAddMs, onEditMs, onStatus, onDue, onDeleteMs }) {
+function GoalCard({ goal, onEdit, onDelete, onAddMs, onEditMs, onStatus, onDue, onDeleteMs, locked, comments, onComment }) {
 	const p = progress(goal);
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", {
 		className: "mb-3 overflow-hidden rounded-xl border border-border bg-surface",
@@ -1171,6 +1437,7 @@ function GoalCard({ goal, onEdit, onDelete, onAddMs, onEditMs, onStatus, onDue, 
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("select", {
 						"aria-label": "Status",
+						disabled: locked,
 						className: "min-h-11 rounded-lg border border-border bg-bg px-2 text-sm",
 						value: m.status,
 						onChange: (e) => onStatus(m.id, e.target.value),
@@ -1187,12 +1454,13 @@ function GoalCard({ goal, onEdit, onDelete, onAddMs, onEditMs, onStatus, onDue, 
 						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 							type: "date",
 							"aria-label": "Due date",
+							disabled: locked,
 							className: "w-full bg-transparent outline-none",
 							value: m.due,
 							onChange: (e) => onDue(m.id, e.target.value)
 						})]
 					}),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					!locked && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 						className: "flex gap-1",
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 							type: "button",
@@ -1209,7 +1477,7 @@ function GoalCard({ goal, onEdit, onDelete, onAddMs, onEditMs, onStatus, onDue, 
 					})
 				]
 			}, m.id)) }),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+			!locked && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 				className: "flex justify-between border-t border-border px-4 py-2",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 					type: "button",
@@ -1230,6 +1498,10 @@ function GoalCard({ goal, onEdit, onDelete, onAddMs, onEditMs, onStatus, onDue, 
 						children: "Delete"
 					})]
 				})]
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(GoalComments, {
+				comments,
+				onComment
 			})
 		]
 	});
@@ -1478,6 +1750,95 @@ function Field({ label, children }) {
 		})]
 	});
 }
-var SplitComponent = TrackerApp;
+function EmailGate({ onMatch }) {
+	const [email, setEmail] = (0, import_react.useState)("");
+	const [error, setError] = (0, import_react.useState)("");
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("main", {
+		className: "grid min-h-screen place-items-center bg-bg px-4 text-fg",
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("form", {
+			className: "w-full max-w-md space-y-3 rounded-xl border border-border bg-surface p-5",
+			onSubmit: (e) => {
+				e.preventDefault();
+				const member = matchTeam(email);
+				if (!member) {
+					setError("That email is not on the team.");
+					return;
+				}
+				onMatch(member);
+			},
+			children: [
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					className: "font-mono text-xs tracking-widest text-primary uppercase",
+					children: "Hyrax"
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
+					className: "text-xl font-semibold",
+					children: "Team link"
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					className: "text-sm leading-relaxed text-muted",
+					children: "Enter the email already on the team list. No Google account. If it matches, you can comment and add answers under your name."
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+					className: "field",
+					type: "text",
+					inputMode: "email",
+					required: true,
+					autoComplete: "email",
+					placeholder: "Email",
+					value: email,
+					onChange: (e) => setEmail(e.target.value)
+				}),
+				error && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					className: "text-sm text-alert",
+					children: error
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+					type: "submit",
+					className: "min-h-11 w-full rounded-lg bg-primary text-sm font-semibold text-primary-ink",
+					children: "Continue"
+				})
+			]
+		})
+	});
+}
+function GoalComments({ comments, onComment }) {
+	const [text, setText] = (0, import_react.useState)("");
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+		className: "space-y-2 border-t border-border px-4 py-3",
+		children: [comments.map((comment) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+			className: "text-sm",
+			children: [
+				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+					className: "font-medium",
+					children: [comment.author, "."]
+				}),
+				" ",
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+					className: "text-muted",
+					children: comment.body
+				})
+			]
+		}, comment.id)), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("form", {
+			className: "flex gap-2",
+			onSubmit: (e) => {
+				e.preventDefault();
+				if (!text.trim()) return;
+				onComment(text.trim());
+				setText("");
+			},
+			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+				className: "field",
+				value: text,
+				placeholder: "Comment under your name",
+				onChange: (e) => setText(e.target.value)
+			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+				type: "submit",
+				className: "min-h-11 rounded-lg border border-border px-3 text-sm",
+				children: "Comment"
+			})]
+		})]
+	});
+}
 //#endregion
-export { SplitComponent as component };
+export { TrackerApp as n, EmailGate as t };

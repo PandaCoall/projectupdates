@@ -1,0 +1,1 @@
+import{t as e}from"./tracker-app-CievMxPG.js";import{i as t,r as n}from"./index-Dr097XIE.js";var r=t();function i(){let t=n();return(0,r.jsx)(e,{onMatch:e=>{sessionStorage.setItem(`hyrax-team-email`,e.email),t({to:`/`})}})}export{i as component};
