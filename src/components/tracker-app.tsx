@@ -15,9 +15,8 @@ import {
 } from "lucide-react";
 import { AnswersView } from "@/components/answers-view";
 import { PeopleView } from "@/components/people-view";
-import { isWeekOneSow, SOW_SEARCH, SowPanel } from "@/components/sow-panel";
-import { FLOW_SEARCH, FlowPanel, isWeekOneFlow } from "@/components/flow-panel";
 import { addComment, deleteMyComment, loadShared, saveGoals, saveMyAnswers, updateMilestone, updateMyComment, type SharedAnswer, type SharedComment } from "@/lib/shared";
+import { boardHasSpec, octoberSpecGoal } from "@/lib/october-spec";
 import { matchTeam, type TeamMember } from "@/lib/team";
 import { withAnswers } from "@/lib/answers";
 import {
@@ -83,22 +82,20 @@ export function TrackerApp() {
         if (cancel) return;
         setComments(snap.comments);
         setTeamAnswers(snap.answers);
+        const goals = boardHasSpec(snap.goals) ? snap.goals : [octoberSpecGoal()];
         setState((prev) => {
           if (!prev) return prev;
           const mine = snap.answers.find((row) => row.author === who.name);
           return {
             ...prev,
-            goals: snap.goals.length > 0 ? snap.goals : prev.goals,
+            goals,
             answers: mine ? mine.body : prev.answers,
           };
         });
-        if (snap.goals.length === 0 && who.role === "owner") {
-          const local = loadState();
-          if (local.goals.length > 0) {
-            saveGoals({ data: { email: who.email, goals: local.goals } }).catch(() =>
-              setToast("Could not save the board."),
-            );
-          }
+        if (!boardHasSpec(snap.goals) && who.role === "owner") {
+          saveGoals({ data: { email: who.email, goals } }).catch(() =>
+            setToast("Could not replace the old goals."),
+          );
         }
       })
       .catch(() => setToast("Could not open the shared tracker."));
@@ -131,8 +128,7 @@ export function TrackerApp() {
   const q = query.trim().toLowerCase();
   const visible = state.goals.filter((g) => {
     if (week !== "all" && g.week !== week) return false;
-    const extra = (g.week === "w1" && g.number === 1 ? SOW_SEARCH : "") + (isWeekOneFlow(g) ? FLOW_SEARCH : "");
-    const blob = `${g.title} ${g.description} ${g.notes} ${g.milestones.map((m) => `${m.title} ${m.notes}`).join(" ")} ${extra}`.toLowerCase();
+    const blob = `${g.title} ${g.description} ${g.notes} ${g.milestones.map((m) => `${m.title} ${m.notes}`).join(" ")}`.toLowerCase();
     if (q && !blob.includes(q)) return false;
     if (status !== "all" && !g.milestones.some((m) => m.status === status)) return false;
     return true;
@@ -500,6 +496,19 @@ export function TrackerApp() {
                         data: { email: who.email, goalId: g.id, milestoneId: mid, due },
                       }).catch(() => setToast("Could not save the due date."));
                     }}
+                    onNotes={(mid, notes) =>
+                      commit((s) => ({
+                        ...s,
+                        goals: s.goals.map((goal) =>
+                          goal.id !== g.id
+                            ? goal
+                            : {
+                                ...goal,
+                                milestones: goal.milestones.map((m) => (m.id === mid ? { ...m, notes } : m)),
+                              },
+                        ),
+                      }))
+                    }
                     onDeleteMs={(mid) =>
                       commit((s) => ({
                         ...s,
@@ -621,6 +630,7 @@ function GoalCard({
   onEditMs,
   onStatus,
   onDue,
+  onNotes,
   onDeleteMs,
   locked,
   comments,
@@ -636,6 +646,7 @@ function GoalCard({
   onEditMs: (m: Milestone) => void;
   onStatus: (id: string, status: Status) => void;
   onDue: (id: string, due: string) => void;
+  onNotes: (id: string, notes: string) => void;
   onDeleteMs: (id: string) => void;
   locked: boolean;
   comments: SharedComment[];
@@ -645,6 +656,8 @@ function GoalCard({
   onDeleteComment: (id: string) => void;
 }) {
   const p = progress(goal);
+  const [open, setOpen] = useState<Record<string, boolean>>({});
+  const allOpen = goal.milestones.length > 0 && goal.milestones.every((m) => open[m.id]);
   return (
     <article className="mb-3 overflow-hidden rounded-xl border border-border bg-surface">
       <div className="flex gap-3 p-4">
@@ -670,10 +683,22 @@ function GoalCard({
           </p>
         </div>
       </div>
-      {isWeekOneFlow(goal) && <FlowPanel />}
+      <div className="flex justify-end border-t border-border px-4 py-2">
+        <button
+          type="button"
+          className="min-h-11 text-sm text-primary"
+          onClick={() =>
+            setOpen(
+              allOpen ? {} : Object.fromEntries(goal.milestones.map((m) => [m.id, true])),
+            )
+          }
+        >
+          {allOpen ? "Minimise all" : "Maximise all"}
+        </button>
+      </div>
       <ul>
         {goal.milestones.map((m) => {
-          const sow = isWeekOneSow(goal, m.id, goal.milestones[0]?.id);
+          const expanded = !!open[m.id];
           return (
           <li
             key={m.id}
@@ -682,8 +707,14 @@ function GoalCard({
             <div className="grid gap-2 px-4 py-3 sm:grid-cols-[auto_1fr_9.5rem_9rem_auto] sm:items-start">
             <StatusMark status={m.status} />
             <div className="min-w-0">
-              <p className="text-sm font-medium">{m.title}</p>
-              {m.notes && !sow && <p className="mt-1 text-sm leading-relaxed text-muted">{m.notes}</p>}
+              <button
+                type="button"
+                className="text-left text-sm font-medium"
+                aria-expanded={expanded}
+                onClick={() => setOpen((current) => ({ ...current, [m.id]: !current[m.id] }))}
+              >
+                {expanded ? "▾" : "▸"} {m.title}
+              </button>
             </div>
             <select
               aria-label="Status"
@@ -723,10 +754,8 @@ function GoalCard({
             </div>
             )}
             </div>
-            {sow && (
-              <div className="border-t border-border bg-bg/40 px-4 py-4">
-                <SowPanel />
-              </div>
+            {expanded && (
+              <MilestoneBody notes={m.notes} locked={locked} label={m.title} onSave={(notes) => onNotes(m.id, notes)} />
             )}
           </li>
           );
@@ -758,6 +787,38 @@ function GoalCard({
   );
 }
 
+function MilestoneBody({
+  notes,
+  locked,
+  label,
+  onSave,
+}: {
+  notes: string;
+  locked: boolean;
+  label: string;
+  onSave: (notes: string) => void;
+}) {
+  const [value, setValue] = useState(notes);
+  useEffect(() => setValue(notes), [notes]);
+  return (
+    <div className="border-t border-border bg-bg/40 px-4 py-3">
+      {locked ? (
+        <p className="text-sm leading-relaxed whitespace-pre-wrap">{notes}</p>
+      ) : (
+        <textarea
+          className="field min-h-40 font-sans text-sm leading-relaxed"
+          aria-label={`Edit ${label}`}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onBlur={() => {
+            if (value !== notes) onSave(value);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
 function StatusMark({ status }: { status: Status }) {
   const cls = "mt-1 text-muted";
   if (status === "done") return <CircleCheck size={16} className="mt-1 text-primary" />;
@@ -782,7 +843,7 @@ function Editor({
   return (
     <div className="fixed inset-0 z-40 flex items-start justify-center bg-bg/70 px-4 pt-16">
       <form
-        className="w-full max-w-lg rounded-xl border border-border bg-surface p-4"
+        className="max-h-[85vh] w-full max-w-3xl overflow-y-auto rounded-xl border border-border bg-surface p-4"
         onSubmit={(e) => {
           e.preventDefault();
           if (local.kind === "goal" && !local.goal.title.trim()) return;
@@ -921,7 +982,7 @@ function Editor({
             </Field>
             <Field label="Notes">
               <textarea
-                className="field min-h-20"
+                className="field min-h-64"
                 value={ms.notes}
                 onChange={(e) => {
                   const notes = e.target.value;
