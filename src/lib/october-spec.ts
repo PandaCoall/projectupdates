@@ -1167,7 +1167,3 @@ export function octoberSpecGoal(): Goal {
     })),
   };
 }
-
-export function boardHasSpec(goals: { id: string }[]) {
-  return goals.some((goal) => goal.id === SPEC_GOAL_ID);
-}

@@ -16,7 +16,6 @@ import {
 import { AnswersView } from "@/components/answers-view";
 import { PeopleView } from "@/components/people-view";
 import { addComment, deleteMyComment, loadShared, saveGoals, saveMyAnswers, updateMilestone, updateMyComment, type SharedAnswer, type SharedComment } from "@/lib/shared";
-import { boardHasSpec, octoberSpecGoal } from "@/lib/october-spec";
 import { matchTeam, type TeamMember } from "@/lib/team";
 import { withAnswers } from "@/lib/answers";
 import {
@@ -27,6 +26,7 @@ import {
   progress,
   saveState,
   seedData,
+  withOctoberGoals,
   type Goal,
   type Milestone,
   type Status,
@@ -82,19 +82,19 @@ export function TrackerApp() {
         if (cancel) return;
         setComments(snap.comments);
         setTeamAnswers(snap.answers);
-        const goals = boardHasSpec(snap.goals) ? snap.goals : [octoberSpecGoal()];
+        const merged = withOctoberGoals(snap.goals);
         setState((prev) => {
           if (!prev) return prev;
           const mine = snap.answers.find((row) => row.author === who.name);
           return {
             ...prev,
-            goals,
+            goals: merged.goals,
             answers: mine ? mine.body : prev.answers,
           };
         });
-        if (!boardHasSpec(snap.goals) && who.role === "owner") {
-          saveGoals({ data: { email: who.email, goals } }).catch(() =>
-            setToast("Could not replace the old goals."),
+        if (merged.changed && who.role === "owner") {
+          saveGoals({ data: { email: who.email, goals: merged.goals } }).catch(() =>
+            setToast("Could not save the board."),
           );
         }
       })

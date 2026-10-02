@@ -1,5 +1,6 @@
 import { emptyAnswers, withAnswers, type Answers } from "@/lib/answers";
-import { boardHasSpec, octoberSpecGoal } from "@/lib/october-spec";
+import { GUIDE_GOAL_ID, octoberGuideGoal } from "@/lib/october-guide";
+import { octoberSpecGoal, SPEC_GOAL_ID } from "@/lib/october-spec";
 
 export const STORAGE_KEY = "hyrax-october-tracker-v3";
 const LEGACY_KEY = "hyrax-october-tracker-v2";
@@ -55,13 +56,26 @@ export type TrackerState = {
   people: Person[];
 };
 
+export function withOctoberGoals(goals: Goal[]) {
+  const hasSpec = goals.some((goal) => goal.id === SPEC_GOAL_ID);
+  const hasGuide = goals.some((goal) => goal.id === GUIDE_GOAL_ID);
+  if (!hasSpec) return { goals: [octoberSpecGoal(), octoberGuideGoal()], changed: true };
+  if (!hasGuide) {
+    const index = goals.findIndex((goal) => goal.id === SPEC_GOAL_ID);
+    const next = [...goals];
+    next.splice(index + 1, 0, octoberGuideGoal());
+    return { goals: next, changed: true };
+  }
+  return { goals, changed: false };
+}
+
 export function seedData(): TrackerState {
   return {
     project: "Hyrax AI Video Production Pilot",
     briefDate: "2026-09-28",
     answers: emptyAnswers(),
     people: [],
-    goals: [octoberSpecGoal()],
+    goals: [octoberSpecGoal(), octoberGuideGoal()],
   };
 }
 
@@ -71,7 +85,10 @@ export function loadState(): TrackerState {
     if (raw) {
       const parsed = withAnswers(JSON.parse(raw) as TrackerState);
       const state = { ...parsed, people: parsed.people ?? [] };
-      if (boardHasSpec(state.goals)) return state;
+      const next = withOctoberGoals(state.goals);
+      if (next.goals.some((goal) => goal.id === SPEC_GOAL_ID)) {
+        return { ...state, goals: next.goals };
+      }
     }
   } catch {
     /* fall through */
