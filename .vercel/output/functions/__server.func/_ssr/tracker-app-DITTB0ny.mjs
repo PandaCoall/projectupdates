@@ -3,7 +3,7 @@ import { S as require_jsx_runtime, Y as require_react, y as Navigate } from "../
 import { n as TSS_SERVER_FUNCTION, r as getServerFnById, t as createServerFn } from "./ssr.mjs";
 import { n as matchTeam, t as TEAM } from "./team-C3E8MDHu.mjs";
 import { a as RotateCcw, c as Download, d as CircleCheck, f as Calendar, i as Search, l as Circle, o as Plus, r as Trash2, s as OctagonAlert, t as Upload, u as CircleDashed } from "../_libs/lucide-react.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/tracker-app-DVCUvAD6.js
+//#region node_modules/.nitro/vite/services/ssr/assets/tracker-app-DITTB0ny.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var FLOW_KINDS = [
@@ -948,6 +948,70 @@ function SowPanel() {
 		]
 	});
 }
+var PAGES = [
+	{
+		src: "/flow/page-1.jpg",
+		title: "Ad Production Workflow — Overview",
+		note: "Six stages from job creation to release. Detailed flow on the next two pages. Footage scrub and ID tool on the last page."
+	},
+	{
+		src: "/flow/page-2.jpg",
+		title: "Part 1 of 2 — Intake, job creation and asset pack (Steps 0–4)",
+		note: "Nothing proceeds until each gate is passed. Red boxes are blocked states."
+	},
+	{
+		src: "/flow/page-3.jpg",
+		title: "Part 2 of 2 — Manifest, render, QA, review and approval (Steps 5–9)",
+		note: "Every failure is visible and recorded. Every override records who made it and why."
+	},
+	{
+		src: "/flow/page-4.jpg",
+		title: "Separate tool — Footage scrubbing and identification script",
+		note: "Triggered when a user uploads their own footage. Processes it, tags it, and stores it for recall."
+	}
+];
+var FLOW_SEARCH = "Ad Production Workflow flowchart Create a job Build asset pack Prepare edit plan Render first cut Run checks Editor review release Footage Scrub Identification Steps 0 1 2 3 4 5 6 7 8 9 Creative Manifest budget QA approval";
+function isWeekOneFlow(goal) {
+	return goal.week === "w1" && goal.number === 2;
+}
+function FlowPanel() {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
+		className: "space-y-4 border-t border-border bg-bg/40 px-4 py-4",
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+			className: "flex flex-wrap items-end justify-between gap-2",
+			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h4", {
+				className: "text-base font-semibold",
+				children: "Ad Production Flow Chart"
+			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+				className: "text-sm text-muted",
+				children: "The flowchart document, four pages."
+			})] }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", {
+				className: "min-h-11 text-sm text-primary underline",
+				href: "/flow/ad-production-flowchart.pdf",
+				download: true,
+				children: "Download PDF"
+			})]
+		}), PAGES.map((page, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("figure", {
+			className: "space-y-2",
+			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("figcaption", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+				className: "text-sm font-medium",
+				children: [
+					"Page ",
+					index + 1,
+					". ",
+					page.title
+				]
+			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+				className: "text-sm text-muted",
+				children: page.note
+			})] }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", {
+				src: page.src,
+				alt: page.title,
+				className: "w-full rounded-lg border border-border bg-white"
+			})]
+		}, page.src))]
+	});
+}
 var createSsrRpc = (functionId) => {
 	const url = "/_serverFn/" + functionId;
 	const serverFnMeta = { id: functionId };
@@ -1207,8 +1271,8 @@ function TrackerApp() {
 	const q = query.trim().toLowerCase();
 	const visible = state.goals.filter((g) => {
 		if (week !== "all" && g.week !== week) return false;
-		const sow = g.week === "w1" && g.number === 1 ? SOW_SEARCH : "";
-		const blob = `${g.title} ${g.description} ${g.notes} ${g.milestones.map((m) => `${m.title} ${m.notes}`).join(" ")} ${sow}`.toLowerCase();
+		const extra = (g.week === "w1" && g.number === 1 ? SOW_SEARCH : "") + (isWeekOneFlow(g) ? FLOW_SEARCH : "");
+		const blob = `${g.title} ${g.description} ${g.notes} ${g.milestones.map((m) => `${m.title} ${m.notes}`).join(" ")} ${extra}`.toLowerCase();
 		if (q && !blob.includes(q)) return false;
 		if (status !== "all" && !g.milestones.some((m) => m.status === status)) return false;
 		return true;
@@ -1762,6 +1826,7 @@ function GoalCard({ goal, onEdit, onDelete, onAddMs, onEditMs, onStatus, onDue, 
 					})
 				]
 			}),
+			isWeekOneFlow(goal) && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(FlowPanel, {}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", { children: goal.milestones.map((m) => {
 				const sow = isWeekOneSow(goal, m.id, goal.milestones[0]?.id);
 				return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
