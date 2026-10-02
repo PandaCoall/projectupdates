@@ -446,6 +446,12 @@ export function TrackerApp() {
                     key={g.id}
                     goal={g}
                     onEdit={() => setDraft({ kind: "goal", isNew: false, goal: structuredClone(g) })}
+                    onRename={(title) =>
+                      commit((s) => ({
+                        ...s,
+                        goals: s.goals.map((goal) => (goal.id === g.id ? { ...goal, title } : goal)),
+                      }))
+                    }
                     onDelete={() => {
                       if (confirm("Delete this goal and its milestones?")) {
                         commit((s) => ({ ...s, goals: s.goals.filter((x) => x.id !== g.id) }));
@@ -461,6 +467,19 @@ export function TrackerApp() {
                     }
                     onEditMs={(m) =>
                       setDraft({ kind: "ms", gid: g.id, isNew: false, ms: structuredClone(m) })
+                    }
+                    onRenameMs={(mid, title) =>
+                      commit((s) => ({
+                        ...s,
+                        goals: s.goals.map((goal) =>
+                          goal.id !== g.id
+                            ? goal
+                            : {
+                                ...goal,
+                                milestones: goal.milestones.map((m) => (m.id === mid ? { ...m, title } : m)),
+                              },
+                        ),
+                      }))
                     }
                     onStatus={(mid, next) => {
                       patch((s) => ({
@@ -625,9 +644,11 @@ function IconButton({
 function GoalCard({
   goal,
   onEdit,
+  onRename,
   onDelete,
   onAddMs,
   onEditMs,
+  onRenameMs,
   onStatus,
   onDue,
   onNotes,
@@ -641,9 +662,11 @@ function GoalCard({
 }: {
   goal: Goal;
   onEdit: () => void;
+  onRename: (title: string) => void;
   onDelete: () => void;
   onAddMs: () => void;
   onEditMs: (m: Milestone) => void;
+  onRenameMs: (id: string, title: string) => void;
   onStatus: (id: string, status: Status) => void;
   onDue: (id: string, due: string) => void;
   onNotes: (id: string, notes: string) => void;
@@ -665,7 +688,7 @@ function GoalCard({
           G{goal.number}
         </span>
         <div className="min-w-0 flex-1">
-          <h3 className="text-base font-semibold">{goal.title}</h3>
+          <NameField label="Goal name" value={goal.title} locked={locked} onSave={onRename} />
           {goal.description && (
             <p className="mt-1 text-sm leading-relaxed whitespace-pre-wrap text-muted">
               {goal.description}
@@ -706,15 +729,23 @@ function GoalCard({
           >
             <div className="grid gap-2 px-4 py-3 sm:grid-cols-[auto_1fr_9.5rem_9rem_auto] sm:items-start">
             <StatusMark status={m.status} />
-            <div className="min-w-0">
+            <div className="flex min-w-0 items-start gap-2">
               <button
                 type="button"
-                className="text-left text-sm font-medium"
+                className="mt-2 shrink-0 text-sm font-medium"
                 aria-expanded={expanded}
+                aria-label={expanded ? "Minimise milestone" : "Maximise milestone"}
                 onClick={() => setOpen((current) => ({ ...current, [m.id]: !current[m.id] }))}
               >
-                {expanded ? "▾" : "▸"} {m.title}
+                {expanded ? "▾" : "▸"}
               </button>
+              <NameField
+                label="Milestone name"
+                value={m.title}
+                locked={locked}
+                compact
+                onSave={(title) => onRenameMs(m.id, title)}
+              />
             </div>
             <select
               aria-label="Status"
@@ -784,6 +815,41 @@ function GoalCard({
         onDeleteComment={onDeleteComment}
       />
     </article>
+  );
+}
+
+function NameField({
+  label,
+  value,
+  locked,
+  compact,
+  onSave,
+}: {
+  label: string;
+  value: string;
+  locked: boolean;
+  compact?: boolean;
+  onSave: (value: string) => void;
+}) {
+  const [draft, setDraft] = useState(value);
+  useEffect(() => setDraft(value), [value]);
+  const text = compact ? "text-sm font-medium" : "text-base font-semibold";
+  if (locked) return <p className={text}>{value}</p>;
+  return (
+    <input
+      className={`min-h-11 w-full rounded-lg border border-transparent bg-transparent px-2 outline-none hover:border-border focus:border-primary ${text}`}
+      aria-label={label}
+      value={draft}
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={() => {
+        const next = draft.trim();
+        if (!next || next === value) {
+          setDraft(value);
+          return;
+        }
+        onSave(next);
+      }}
+    />
   );
 }
 

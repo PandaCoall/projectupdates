@@ -3,7 +3,7 @@ import { S as require_jsx_runtime, Y as require_react, y as Navigate } from "../
 import { n as TSS_SERVER_FUNCTION, r as getServerFnById, t as createServerFn } from "./ssr.mjs";
 import { n as matchTeam, t as TEAM } from "./team-C3E8MDHu.mjs";
 import { a as RotateCcw, c as Download, d as CircleCheck, f as Calendar, i as Search, l as Circle, o as Plus, r as Trash2, s as OctagonAlert, t as Upload, u as CircleDashed } from "../_libs/lucide-react.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/tracker-app-lEpzYQKL.js
+//#region node_modules/.nitro/vite/services/ssr/assets/tracker-app-YvRYx67K.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var FLOW_KINDS = [
@@ -3945,6 +3945,13 @@ function TrackerApp() {
 								isNew: false,
 								goal: structuredClone(g)
 							}),
+							onRename: (title) => commit((s) => ({
+								...s,
+								goals: s.goals.map((goal) => goal.id === g.id ? {
+									...goal,
+									title
+								} : goal)
+							})),
 							onDelete: () => {
 								if (confirm("Delete this goal and its milestones?")) commit((s) => ({
 									...s,
@@ -3969,6 +3976,16 @@ function TrackerApp() {
 								isNew: false,
 								ms: structuredClone(m)
 							}),
+							onRenameMs: (mid, title) => commit((s) => ({
+								...s,
+								goals: s.goals.map((goal) => goal.id !== g.id ? goal : {
+									...goal,
+									milestones: goal.milestones.map((m) => m.id === mid ? {
+										...m,
+										title
+									} : m)
+								})
+							})),
 							onStatus: (mid, next) => {
 								patch((s) => ({
 									...s,
@@ -4099,7 +4116,7 @@ function IconButton({ label, onClick, children }) {
 		children: [children, /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: label })]
 	});
 }
-function GoalCard({ goal, onEdit, onDelete, onAddMs, onEditMs, onStatus, onDue, onNotes, onDeleteMs, locked, comments, me, onComment, onEditComment, onDeleteComment }) {
+function GoalCard({ goal, onEdit, onRename, onDelete, onAddMs, onEditMs, onRenameMs, onStatus, onDue, onNotes, onDeleteMs, locked, comments, me, onComment, onEditComment, onDeleteComment }) {
 	const p = progress(goal);
 	const [open, setOpen] = (0, import_react.useState)({});
 	const allOpen = goal.milestones.length > 0 && goal.milestones.every((m) => open[m.id]);
@@ -4116,9 +4133,11 @@ function GoalCard({ goal, onEdit, onDelete, onAddMs, onEditMs, onStatus, onDue, 
 					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 						className: "min-w-0 flex-1",
 						children: [
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-								className: "text-base font-semibold",
-								children: goal.title
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(NameField, {
+								label: "Goal name",
+								value: goal.title,
+								locked,
+								onSave: onRename
 							}),
 							goal.description && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
 								className: "mt-1 text-sm leading-relaxed whitespace-pre-wrap text-muted",
@@ -4167,22 +4186,25 @@ function GoalCard({ goal, onEdit, onDelete, onAddMs, onEditMs, onStatus, onDue, 
 						className: "grid gap-2 px-4 py-3 sm:grid-cols-[auto_1fr_9.5rem_9rem_auto] sm:items-start",
 						children: [
 							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(StatusMark, { status: m.status }),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-								className: "min-w-0",
-								children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "flex min-w-0 items-start gap-2",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 									type: "button",
-									className: "text-left text-sm font-medium",
+									className: "mt-2 shrink-0 text-sm font-medium",
 									"aria-expanded": expanded,
+									"aria-label": expanded ? "Minimise milestone" : "Maximise milestone",
 									onClick: () => setOpen((current) => ({
 										...current,
 										[m.id]: !current[m.id]
 									})),
-									children: [
-										expanded ? "▾" : "▸",
-										" ",
-										m.title
-									]
-								})
+									children: expanded ? "▾" : "▸"
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(NameField, {
+									label: "Milestone name",
+									value: m.title,
+									locked,
+									compact: true,
+									onSave: (title) => onRenameMs(m.id, title)
+								})]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("select", {
 								"aria-label": "Status",
@@ -4261,6 +4283,29 @@ function GoalCard({ goal, onEdit, onDelete, onAddMs, onEditMs, onStatus, onDue, 
 				onDeleteComment
 			})
 		]
+	});
+}
+function NameField({ label, value, locked, compact, onSave }) {
+	const [draft, setDraft] = (0, import_react.useState)(value);
+	(0, import_react.useEffect)(() => setDraft(value), [value]);
+	const text = compact ? "text-sm font-medium" : "text-base font-semibold";
+	if (locked) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+		className: text,
+		children: value
+	});
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+		className: `min-h-11 w-full rounded-lg border border-transparent bg-transparent px-2 outline-none hover:border-border focus:border-primary ${text}`,
+		"aria-label": label,
+		value: draft,
+		onChange: (e) => setDraft(e.target.value),
+		onBlur: () => {
+			const next = draft.trim();
+			if (!next || next === value) {
+				setDraft(value);
+				return;
+			}
+			onSave(next);
+		}
 	});
 }
 function MilestoneBody({ notes, locked, label, onSave }) {
