@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { AnswersView } from "@/components/answers-view";
 import { PeopleView } from "@/components/people-view";
+import { isWeekOneSow, SOW_SEARCH, SowPanel } from "@/components/sow-panel";
 import { addComment, deleteMyComment, loadShared, saveGoals, saveMyAnswers, updateMilestone, updateMyComment, type SharedAnswer, type SharedComment } from "@/lib/shared";
 import { matchTeam, type TeamMember } from "@/lib/team";
 import { withAnswers } from "@/lib/answers";
@@ -129,7 +130,8 @@ export function TrackerApp() {
   const q = query.trim().toLowerCase();
   const visible = state.goals.filter((g) => {
     if (week !== "all" && g.week !== week) return false;
-    const blob = `${g.title} ${g.description} ${g.notes} ${g.milestones.map((m) => `${m.title} ${m.notes}`).join(" ")}`.toLowerCase();
+    const sow = g.week === "w1" && g.number === 1 ? SOW_SEARCH : "";
+    const blob = `${g.title} ${g.description} ${g.notes} ${g.milestones.map((m) => `${m.title} ${m.notes}`).join(" ")} ${sow}`.toLowerCase();
     if (q && !blob.includes(q)) return false;
     if (status !== "all" && !g.milestones.some((m) => m.status === status)) return false;
     return true;
@@ -668,15 +670,18 @@ function GoalCard({
         </div>
       </div>
       <ul>
-        {goal.milestones.map((m) => (
+        {goal.milestones.map((m) => {
+          const sow = isWeekOneSow(goal, m.id, goal.milestones[0]?.id);
+          return (
           <li
             key={m.id}
-            className="grid gap-2 border-t border-border px-4 py-3 sm:grid-cols-[auto_1fr_9.5rem_9rem_auto] sm:items-start"
+            className="border-t border-border"
           >
+            <div className="grid gap-2 px-4 py-3 sm:grid-cols-[auto_1fr_9.5rem_9rem_auto] sm:items-start">
             <StatusMark status={m.status} />
             <div className="min-w-0">
               <p className="text-sm font-medium">{m.title}</p>
-              {m.notes && <p className="mt-1 text-sm leading-relaxed text-muted">{m.notes}</p>}
+              {m.notes && !sow && <p className="mt-1 text-sm leading-relaxed text-muted">{m.notes}</p>}
             </div>
             <select
               aria-label="Status"
@@ -715,8 +720,15 @@ function GoalCard({
               </button>
             </div>
             )}
+            </div>
+            {sow && (
+              <div className="border-t border-border bg-bg/40 px-4 py-4">
+                <SowPanel />
+              </div>
+            )}
           </li>
-        ))}
+          );
+        })}
       </ul>
       {!locked && (
       <div className="flex justify-between border-t border-border px-4 py-2">

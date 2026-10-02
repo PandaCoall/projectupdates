@@ -3,7 +3,7 @@ import { S as require_jsx_runtime, Y as require_react, y as Navigate } from "../
 import { n as TSS_SERVER_FUNCTION, r as getServerFnById, t as createServerFn } from "./ssr.mjs";
 import { n as matchTeam, t as TEAM } from "./team-C3E8MDHu.mjs";
 import { a as RotateCcw, c as Download, d as CircleCheck, f as Calendar, i as Search, l as Circle, o as Plus, r as Trash2, s as OctagonAlert, t as Upload, u as CircleDashed } from "../_libs/lucide-react.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/tracker-app-CYPSRycv.js
+//#region node_modules/.nitro/vite/services/ssr/assets/tracker-app-DVCUvAD6.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var FLOW_KINDS = [
@@ -731,6 +731,223 @@ function PeopleView() {
 		})]
 	});
 }
+var INCLUDED = [
+	["Planning and specification", "Finalise architecture, data contracts, dependencies, generation-platform selection, responsibilities and acceptance criteria."],
+	["Private application", "Authentication, role-based access, job creation, persistent progress, failure visibility and separate development/staging/production configuration."],
+	["Generation layer", "Integrate one presenter recipe and one B-roll generation route initially. Version recipes and retain provider/model settings, task IDs, costs and outputs."],
+	["Background processing", "Asynchronous generation, polling, downloads, analysis and rendering; budget reservations, safe retries, reconciliation and cancellation."],
+	["Asset library and tagging", "Private uploads and retention; originals, proxies and thumbnails; automated descriptions and tags; usable segment ranges; source, rights, restrictions and approval records. Retain valid originals with no usable ranges and mark them clearly."],
+	["Search and retrieval", "Search approved assets before generating more. Implement semantic retrieval and filter results by campaign permissions, rights, expiry and approval status."],
+	["Script verification", "Transcription and timing checks against the approved script. Material messaging differences stop progression for review."],
+	["AI edit decisions", "Generate constrained editorial instructions covering asset selection, timing, crops, captions, audio, motion, CTA/end frame and approved alternatives. Validate and retain these as versioned Creative Manifests."],
+	["Deterministic rendering", "Assemble presenter, B-roll, captions, required voice/audio, music/sound, approved motion, CTA, end frame and mandatory copy using Remotion and media-processing tools."],
+	["Editor review", "Show the cut with script beats, selected assets, captions, QA flags and approved alternatives. Support shot replacement, permitted property changes and rejection reasons. Changes create a new manifest/render and rerun QA."],
+	["QA and approval", "Technical checks, agreed automated brand/policy checks, recorded overrides and named human approval tied to an exact render version."],
+	["Provider flexibility", "Hyrax-owned adapter contracts. Test a second provider during November where access permits; do not make it a prerequisite for the primary production path."],
+	["Operational readiness", "Monitoring, audit history, deployment documentation, recovery procedures, rollback, operator training and production verification."],
+	["Evaluation", "Measure editor touch time, total human labour, elapsed production time, costs, failures and complete rebuilds."]
+];
+var MILESTONES = [
+	[
+		"29 September–2 October",
+		"Agreed implementation pack and initial platform decisions",
+		"Scope, dependency owners and acceptance criteria confirmed."
+	],
+	[
+		"October — Phase 1",
+		"Private foundation, complete assembly, initial generation integrations, asset library/tagging/search, AI manifest creation and minimum review controls",
+		"An approved script produces a complete, useful first cut. Build 1 specifically proves an editor can continue a full rendered cut through the tested hand-off, with private inputs, manifest and output versions retained."
+	],
+	[
+		"November — Phase 2",
+		"Improved retrieval and editorial quality, completed review/approval controls, reliable recovery, monitoring and release candidate",
+		"Agreed functionality complete in staging; ready for formal acceptance testing."
+	],
+	[
+		"December — Phase 3",
+		"System and editor acceptance testing, defect fixes, production deployment, training and stabilisation",
+		"Critical tests pass, named production approval is recorded, and recovery/rollback are verified. Deployment target: 14–18 December."
+	]
+];
+var BOUNDARIES = [
+	"One campaign/product.",
+	"One approximately 30-second, 9:16 advert per job.",
+	"One presenter recipe and one B-roll generation route.",
+	"A curated pilot asset library.",
+	"Bounded editor corrections using approved assets and properties."
+];
+var EXCLUDED = [
+	"Bulk ingestion/tagging of hundreds of thousands of existing videos.",
+	"Proprietary model training or a self-hosted GPU fleet.",
+	"An unrestricted browser timeline replacing Premiere.",
+	"Unlimited variants, multi-platform cut-downs or broad campaign rollout.",
+	"Autonomous strategy, unapproved messaging or automatic publishing.",
+	"Guaranteed commercial advertising performance.",
+	"Ongoing support beyond the agreed December stabilisation period."
+];
+var ACCEPTANCE = [
+	"All required advert elements are present and technically valid.",
+	"Editors can continue the cut without reconstructing the entire advert.",
+	"Assets and segments are eligible for the intended use.",
+	"Inputs, generation attempts, costs, manifests, renders, corrections and approvals are traceable.",
+	"Interrupted work can recover safely.",
+	"Private data and media are accessible only to authorised users.",
+	"Measured production savings meet the agreed target without reducing accepted quality."
+];
+var OBJECTIVE = "Build a private production system that takes an approved script through asset retrieval/generation, asset analysis, AI editorial planning, deterministic rendering, QA, editor review and named approval. The system must produce a complete first-cut advert that an editor prefers to use rather than starting from a blank Premiere timeline. If editors discard the cut and rebuild it, the quality milestone has not been achieved.";
+var SOW_SEARCH = [
+	"Hyrax AI Advert Production Scope of Work",
+	OBJECTIVE,
+	...INCLUDED.flat(),
+	...MILESTONES.flat(),
+	...BOUNDARIES,
+	...EXCLUDED,
+	...ACCEPTANCE
+].join(" ");
+function isWeekOneSow(goal, milestoneId, firstId) {
+	return goal.week === "w1" && goal.number === 1 && milestoneId === firstId;
+}
+function Table({ headers, rows }) {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+		className: "overflow-x-auto rounded-lg border border-border",
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("table", {
+			className: "w-full min-w-[42rem] border-collapse text-left text-sm",
+			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("thead", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("tr", {
+				className: "bg-bg text-xs tracking-wide text-muted uppercase",
+				children: headers.map((header) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
+					className: "px-3 py-2 font-medium",
+					children: header
+				}, header))
+			}) }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("tbody", { children: rows.map((row) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("tr", {
+				className: "border-t border-border align-top",
+				children: row.map((cell, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", {
+					className: index === 0 ? "px-3 py-2 font-medium" : "px-3 py-2 text-muted",
+					children: cell
+				}, index))
+			}, row[0])) })]
+		})
+	});
+}
+function Bullets({ items }) {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
+		className: "list-disc space-y-1 pl-5 text-muted",
+		children: items.map((item) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: item }, item))
+	});
+}
+function SowPanel() {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
+		className: "space-y-5 text-sm leading-relaxed",
+		children: [
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h4", {
+				className: "text-base font-semibold",
+				children: "Hyrax AI Advert Production — Scope of Work"
+			}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("dl", {
+				className: "mt-2 grid gap-1 text-muted sm:grid-cols-2",
+				children: [
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { children: "Project period: 29 September–31 December 2026" }),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { children: "Planning: 29 September–2 October" }),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { children: "Development: October–November" }),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { children: "Formal testing, production deployment and stabilisation: December" })
+				]
+			})] }),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h5", {
+				className: "mb-1 font-semibold",
+				children: "Objective"
+			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+				className: "text-muted",
+				children: OBJECTIVE
+			})] }),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h5", {
+				className: "mb-2 font-semibold",
+				children: "Included work"
+			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Table, {
+				headers: ["Area", "Scope"],
+				rows: INCLUDED
+			})] }),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h5", {
+					className: "mb-2 font-semibold",
+					children: "Delivery milestones"
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Table, {
+					headers: [
+						"Period",
+						"Deliverables",
+						"Acceptance"
+					],
+					rows: MILESTONES
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					className: "mt-2 text-muted",
+					children: "A prepared manifest is acceptable for Build 1’s assembly test. AI-produced editorial decisions remain required for the October end-to-end pilot target."
+				})
+			] }),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h5", {
+					className: "mb-1 font-semibold",
+					children: "Scope boundaries"
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					className: "mb-2 text-muted",
+					children: "The initial production path is limited to:"
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Bullets, { items: BOUNDARIES }),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					className: "mt-2 text-muted",
+					children: "Additional campaigns, formats, recipes or providers require a scope decision after the initial path passes its acceptance gate."
+				})
+			] }),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h5", {
+					className: "mb-1 font-semibold",
+					children: "Excluded work"
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Bullets, { items: EXCLUDED }),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					className: "mt-2 text-muted",
+					children: "Self-hosted ComfyUI remains an assessed architectural option. Implementing it is included only if selected as the initial generation route and its infrastructure responsibilities are explicitly agreed."
+				})
+			] }),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h5", {
+					className: "mb-1 font-semibold",
+					children: "Acceptance and measurement"
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					className: "mb-2 text-muted",
+					children: "Before comparative testing, agree the quality rubric and numerical improvement target with the lead editor and second editor."
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					className: "mb-2",
+					children: "Acceptance requires:"
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Bullets, { items: ACCEPTANCE }),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					className: "mt-2 text-muted",
+					children: "A 25% reduction in median editor touch time is a proposed target, subject to agreement. Total human labour and elapsed time must also be reported so work is not merely shifted elsewhere."
+				})
+			] }),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h5", {
+					className: "mb-1 font-semibold",
+					children: "Dependencies and responsibilities"
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					className: "text-muted",
+					children: "Hyrax supplies company-owned accounts, provider access, billing caps, approved scripts, reference adverts/source media, brand assets, rights information, campaign rules, two editors and a named release owner."
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					className: "mt-2 text-muted",
+					children: "The delivery team supplies implementation, integration, technical testing, documentation and deployment. The schedule assumes a dedicated implementation lead with regular senior engineering review."
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					className: "mt-2 text-muted",
+					children: "Failed gates must be resolved, narrowed explicitly or rescheduled. New functionality should not be added during December’s testing and deployment phase unless necessary to meet the agreed scope."
+				})
+			] })
+		]
+	});
+}
 var createSsrRpc = (functionId) => {
 	const url = "/_serverFn/" + functionId;
 	const serverFnMeta = { id: functionId };
@@ -820,7 +1037,7 @@ function seedData() {
 				notes: "",
 				due: "2026-10-07",
 				milestones: [
-					ms("Write concise October SOW (in / out of scope + deliverables)", "2026-10-03", "Out of scope includes autonomous strategy, unlimited variants, a browser Premiere, auto-publish, and commercial-performance claims."),
+					ms("Write concise October SOW (in / out of scope + deliverables)", "2026-10-03", ""),
 					ms("Define the editor first-cut acceptance bar", "2026-10-07", "Editor prefers the system first cut over a blank Premiere timeline. If they throw it away and rebuild, the milestone is not met."),
 					ms("Confirm the end-to-end basic path", "2026-10-07", "UGC/presenter, B-roll, captions, voice/audio where required, music/sound, CTA/end frame, assembled first cut.")
 				]
@@ -990,7 +1207,8 @@ function TrackerApp() {
 	const q = query.trim().toLowerCase();
 	const visible = state.goals.filter((g) => {
 		if (week !== "all" && g.week !== week) return false;
-		const blob = `${g.title} ${g.description} ${g.notes} ${g.milestones.map((m) => `${m.title} ${m.notes}`).join(" ")}`.toLowerCase();
+		const sow = g.week === "w1" && g.number === 1 ? SOW_SEARCH : "";
+		const blob = `${g.title} ${g.description} ${g.notes} ${g.milestones.map((m) => `${m.title} ${m.notes}`).join(" ")} ${sow}`.toLowerCase();
 		if (q && !blob.includes(q)) return false;
 		if (status !== "all" && !g.milestones.some((m) => m.status === status)) return false;
 		return true;
@@ -1544,60 +1762,69 @@ function GoalCard({ goal, onEdit, onDelete, onAddMs, onEditMs, onStatus, onDue, 
 					})
 				]
 			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", { children: goal.milestones.map((m) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
-				className: "grid gap-2 border-t border-border px-4 py-3 sm:grid-cols-[auto_1fr_9.5rem_9rem_auto] sm:items-start",
-				children: [
-					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(StatusMark, { status: m.status }),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "min-w-0",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-							className: "text-sm font-medium",
-							children: m.title
-						}), m.notes && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-							className: "mt-1 text-sm leading-relaxed text-muted",
-							children: m.notes
-						})]
-					}),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("select", {
-						"aria-label": "Status",
-						className: "min-h-11 rounded-lg border border-border bg-bg px-2 text-sm",
-						value: m.status,
-						onChange: (e) => onStatus(m.id, e.target.value),
-						children: STATUSES.map((s) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
-							value: s.id,
-							children: s.label
-						}, s.id))
-					}),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-						className: "flex min-h-11 items-center gap-2 rounded-lg border border-border bg-bg px-2 text-sm",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, {
-							size: 14,
-							className: "shrink-0 text-muted"
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-							type: "date",
-							"aria-label": "Due date",
-							className: "w-full bg-transparent outline-none",
-							value: m.due,
-							onChange: (e) => onDue(m.id, e.target.value)
-						})]
-					}),
-					!locked && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "flex gap-1",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-							type: "button",
-							className: "min-h-11 px-2 text-sm text-muted",
-							onClick: () => onEditMs(m),
-							children: "Edit"
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-							type: "button",
-							"aria-label": "Delete milestone",
-							className: "min-h-11 px-2 text-alert",
-							onClick: () => onDeleteMs(m.id),
-							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Trash2, { size: 16 })
-						})]
-					})
-				]
-			}, m.id)) }),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", { children: goal.milestones.map((m) => {
+				const sow = isWeekOneSow(goal, m.id, goal.milestones[0]?.id);
+				return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
+					className: "border-t border-border",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "grid gap-2 px-4 py-3 sm:grid-cols-[auto_1fr_9.5rem_9rem_auto] sm:items-start",
+						children: [
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(StatusMark, { status: m.status }),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "min-w-0",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+									className: "text-sm font-medium",
+									children: m.title
+								}), m.notes && !sow && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+									className: "mt-1 text-sm leading-relaxed text-muted",
+									children: m.notes
+								})]
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("select", {
+								"aria-label": "Status",
+								className: "min-h-11 rounded-lg border border-border bg-bg px-2 text-sm",
+								value: m.status,
+								onChange: (e) => onStatus(m.id, e.target.value),
+								children: STATUSES.map((s) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
+									value: s.id,
+									children: s.label
+								}, s.id))
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+								className: "flex min-h-11 items-center gap-2 rounded-lg border border-border bg-bg px-2 text-sm",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, {
+									size: 14,
+									className: "shrink-0 text-muted"
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+									type: "date",
+									"aria-label": "Due date",
+									className: "w-full bg-transparent outline-none",
+									value: m.due,
+									onChange: (e) => onDue(m.id, e.target.value)
+								})]
+							}),
+							!locked && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "flex gap-1",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+									type: "button",
+									className: "min-h-11 px-2 text-sm text-muted",
+									onClick: () => onEditMs(m),
+									children: "Edit"
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+									type: "button",
+									"aria-label": "Delete milestone",
+									className: "min-h-11 px-2 text-alert",
+									onClick: () => onDeleteMs(m.id),
+									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Trash2, { size: 16 })
+								})]
+							})
+						]
+					}), sow && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+						className: "border-t border-border bg-bg/40 px-4 py-4",
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SowPanel, {})
+					})]
+				}, m.id);
+			}) }),
 			!locked && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 				className: "flex justify-between border-t border-border px-4 py-2",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {

@@ -82,7 +82,7 @@ export function seedData(): TrackerState {
           ms(
             "Write concise October SOW (in / out of scope + deliverables)",
             "2026-10-03",
-            "Out of scope includes autonomous strategy, unlimited variants, a browser Premiere, auto-publish, and commercial-performance claims.",
+            "",
           ),
           ms(
             "Define the editor first-cut acceptance bar",
